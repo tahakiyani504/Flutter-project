@@ -2,111 +2,304 @@ import 'package:flutter/material.dart';
 import '../services/socket_service.dart';
 
 
-class PowerPage extends StatelessWidget {
+class PowerPage extends StatefulWidget {
+
   const PowerPage({super.key});
 
 
-  void confirmAndSend(BuildContext context, String command) {
+  @override
+  State<PowerPage> createState() => _PowerPageState();
 
+}
+
+
+
+class _PowerPageState extends State<PowerPage> {
+
+
+
+  void confirmAndSend(
+      BuildContext context,
+      String command,
+      ) {
+
+
+    String title;
     String message;
 
-    switch(command) {
+
+
+    switch(command){
+
 
       case "POWER_OFF":
-        message = "Shut down the PC?";
+
+        title = "Shutdown PC";
+
+        message =
+        "Are you sure you want to shutdown your PC?";
+
         break;
+
+
 
       case "RESTART":
-        message = "Restart the PC?";
+
+        title = "Restart PC";
+
+        message =
+        "Are you sure you want to restart your PC?";
+
         break;
+
+
 
       case "SLEEP":
-        message = "Put PC to sleep?";
+
+        title = "Sleep Mode";
+
+        message =
+        "Put your PC into sleep mode?";
+
         break;
 
+
+
       default:
-        message = "Continue?";
+
+        title = "Confirm";
+
+        message =
+        "Continue this action?";
+
     }
 
 
+
+
+
     showDialog(
+
       context: context,
 
-      builder: (context) {
+
+      builder:(context){
+
 
         return AlertDialog(
 
-          title: const Text("Confirm Action"),
 
-          content: Text(message),
+          backgroundColor:
+          const Color(0xff202020),
 
 
-          actions: [
+
+          shape:
+          RoundedRectangleBorder(
+
+            borderRadius:
+            BorderRadius.circular(20),
+
+          ),
+
+
+
+          title:Text(
+
+            title,
+
+            style:
+            const TextStyle(
+
+              color:Colors.white,
+
+              fontWeight:
+              FontWeight.bold,
+
+            ),
+
+          ),
+
+
+
+          content:Text(
+
+            message,
+
+            style:
+            const TextStyle(
+
+              color:Colors.white70,
+
+            ),
+
+          ),
+
+
+
+
+          actions:[
+
+
 
             TextButton(
-              onPressed: () {
+
+              onPressed:(){
+
                 Navigator.pop(context);
+
               },
 
-              child: const Text("Cancel"),
+
+              child:
+              const Text(
+
+                "Cancel",
+
+                style:
+
+                TextStyle(
+
+                  color:
+                  Colors.grey,
+
+                ),
+
+              ),
+
             ),
+
+
 
 
             ElevatedButton(
 
-              onPressed: () {
+              style:
+              ElevatedButton.styleFrom(
+
+                backgroundColor:
+                Colors.blueAccent,
+
+              ),
+
+
+              onPressed:(){
+
 
                 Navigator.pop(context);
 
-                sendCommand(context, command);
+
+                sendCommand(
+                    context,
+                    command
+                );
+
 
               },
 
-              child: const Text("Yes"),
+
+
+              child:
+              const Text(
+
+                "Confirm",
+
+              ),
+
 
             ),
 
+
           ],
+
+
+
         );
 
+
       },
+
     );
+
 
   }
 
 
 
-  void sendCommand(BuildContext context, String command) {
 
-    try {
+
+
+
+  void sendCommand(
+      BuildContext context,
+      String command,
+      ){
+
+
+
+    try{
+
 
       SocketService.sendCommand(command);
 
 
-      ScaffoldMessenger.of(context).showSnackBar(
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+
+
 
         SnackBar(
-          content: Text("$command sent"),
+
+          backgroundColor:
+          Colors.blueAccent,
+
+
+          content:
+          Text(
+
+            "$command sent",
+
+          ),
+
+
         ),
+
+
 
       );
 
 
-    } catch(e) {
+
+    }catch(e){
 
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+
 
         const SnackBar(
-          content: Text("Failed to send command"),
+
+          content:
+          Text(
+            "Failed to send command",
+          ),
+
         ),
+
 
       );
 
 
     }
 
+
   }
+
+
+
+
+
 
 
 
@@ -115,141 +308,431 @@ class PowerPage extends StatelessWidget {
   Widget build(BuildContext context) {
 
 
+
     return Scaffold(
 
-      appBar: AppBar(
 
-        title: const Text("Power Control"),
 
-        centerTitle: true,
-
-      ),
+      backgroundColor:
+      const Color(0xff101010),
 
 
 
-      body: Center(
 
-        child: Container(
-
-          width: 322,
-
-          padding: const EdgeInsets.symmetric(
-            vertical: 50,
-            horizontal: 32,
-          ),
-
-
-          decoration: BoxDecoration(
-
-            color: const Color(0xFF1F1F24),
-
-            borderRadius: BorderRadius.circular(36),
-
-            border: Border.all(
-              color: const Color(0xFF2C2C30),
-            ),
-
-            boxShadow: const [
-
-              BoxShadow(
-                blurRadius: 10,
-              ),
-
-            ],
-
-          ),
+      appBar:AppBar(
 
 
 
-          child: Column(
+        title:
+        const Text(
 
-            mainAxisSize: MainAxisSize.min,
+          "Power Control",
 
-            children: [
+          style:
+          TextStyle(
 
-
-              powerButton(
-
-                text: "Power Off",
-
-                color: Colors.red,
-
-                icon: Icons.power_settings_new,
-
-                onTap: () {
-
-                  confirmAndSend(
-                    context,
-                    "POWER_OFF",
-                  );
-
-                },
-
-              ),
-
-
-
-              const SizedBox(height: 20),
-
-
-
-              powerButton(
-
-                text: "Restart",
-
-                color: Colors.orange,
-
-                icon: Icons.restart_alt,
-
-                onTap: () {
-
-                  confirmAndSend(
-                    context,
-                    "RESTART",
-                  );
-
-                },
-
-              ),
-
-
-
-              const SizedBox(height: 20),
-
-
-
-              powerButton(
-
-                text: "Sleep",
-
-                color: Colors.green,
-
-                icon: Icons.bedtime,
-
-                onTap: () {
-
-                  confirmAndSend(
-                    context,
-                    "SLEEP",
-                  );
-
-                },
-
-              ),
-
-
-
-            ],
+            fontWeight:
+            FontWeight.bold,
 
           ),
 
         ),
 
+
+
+        centerTitle:true,
+
+
+        backgroundColor:
+        const Color(0xff101010),
+
+
       ),
+
+
+
+
+
+
+
+      body:SafeArea(
+
+
+
+        child:LayoutBuilder(
+
+
+
+          builder:(context,constraints){
+
+
+
+            return SingleChildScrollView(
+
+
+              physics:
+              const BouncingScrollPhysics(),
+
+
+
+              child:ConstrainedBox(
+
+
+
+                constraints:
+
+                BoxConstraints(
+
+                  minHeight:
+                  constraints.maxHeight,
+
+                ),
+
+
+
+                child:Center(
+
+
+
+                  child:Container(
+
+
+
+                    width:
+
+                    constraints.maxWidth > 500
+
+                        ? 380
+
+                        : constraints.maxWidth * .90,
+
+
+
+
+
+                    margin:
+                    const EdgeInsets.all(15),
+
+
+
+
+
+                    padding:
+                    EdgeInsets.all(
+
+                      constraints.maxHeight < 500
+
+                          ? 18
+
+                          : 28,
+
+                    ),
+
+
+
+
+
+
+                    decoration:
+                    BoxDecoration(
+
+
+
+                      color:
+                      const Color(0xff1c1c1c),
+
+
+
+
+                      borderRadius:
+                      BorderRadius.circular(30),
+
+
+
+
+                      border:Border.all(
+
+                        color:
+
+                        Colors.blueAccent
+                            .withOpacity(.25),
+
+                      ),
+
+
+
+
+                      boxShadow:[
+
+
+
+                        BoxShadow(
+
+                          blurRadius:20,
+
+                          color:
+
+                          Colors.black
+                              .withOpacity(.5),
+
+                        )
+
+                      ],
+
+
+
+                    ),
+
+
+
+
+
+
+
+                    child:Column(
+
+
+
+                      mainAxisSize:
+                      MainAxisSize.min,
+
+
+
+                      children:[
+
+
+
+
+                        Container(
+
+
+
+                          padding:
+                          const EdgeInsets.all(15),
+
+
+
+
+                          decoration:
+                          const BoxDecoration(
+
+
+
+                            shape:
+                            BoxShape.circle,
+
+
+
+                            color:
+                            Color(0xff252525),
+
+
+
+                          ),
+
+
+
+
+                          child:
+                          Icon(
+
+
+
+                            Icons.power_settings_new,
+
+
+                            size:
+
+                            constraints.maxHeight < 500
+
+                                ? 45
+
+                                : 60,
+
+
+
+                            color:
+                            Colors.redAccent,
+
+
+                          ),
+
+
+
+
+                        ),
+
+
+
+
+
+
+                        const SizedBox(height:15),
+
+
+
+
+
+
+
+                        const Text(
+
+
+
+                          "System Power",
+
+
+
+                          style:
+                          TextStyle(
+
+
+
+                            color:
+                            Colors.white,
+
+
+                            fontSize:22,
+
+
+                            fontWeight:
+                            FontWeight.bold,
+
+
+                          ),
+
+
+                        ),
+
+
+
+
+
+
+
+                        const SizedBox(height:25),
+
+
+
+
+
+
+                        powerButton(
+
+
+                          text:"Power Off",
+
+                          icon:
+                          Icons.power_settings_new,
+
+                          color:
+                          Colors.redAccent,
+
+                          command:
+                          "POWER_OFF",
+
+                        ),
+
+
+
+
+
+
+                        const SizedBox(height:12),
+
+
+
+
+
+
+                        powerButton(
+
+
+                          text:"Restart",
+
+                          icon:
+                          Icons.restart_alt,
+
+                          color:
+                          Colors.orangeAccent,
+
+                          command:
+                          "RESTART",
+
+                        ),
+
+
+
+
+
+
+
+                        const SizedBox(height:12),
+
+
+
+
+
+
+                        powerButton(
+
+
+                          text:"Sleep",
+
+                          icon:
+                          Icons.bedtime,
+
+                          color:
+                          Colors.green,
+
+                          command:
+                          "SLEEP",
+
+                        ),
+
+
+
+
+                      ],
+
+
+
+                    ),
+
+
+
+                  ),
+
+
+
+                ),
+
+
+
+              ),
+
+
+
+            );
+
+
+          },
+
+
+        ),
+
+
+      ),
+
+
 
     );
 
   }
+
+
+
+
 
 
 
@@ -257,68 +740,186 @@ class PowerPage extends StatelessWidget {
 
   Widget powerButton({
 
-    required String text,
 
-    required Color color,
+    required String text,
 
     required IconData icon,
 
-    required VoidCallback onTap,
+    required Color color,
+
+    required String command,
+
 
   }) {
 
 
-    return SizedBox(
 
-      width: 240,
-
-      height: 52,
+    return InkWell(
 
 
-      child: ElevatedButton.icon(
 
-        onPressed: onTap,
+      borderRadius:
+      BorderRadius.circular(18),
 
 
-        icon: Icon(
-          icon,
-          color: Colors.white,
+
+
+      onTap:(){
+
+
+
+        confirmAndSend(
+
+            context,
+
+            command
+
+        );
+
+
+
+      },
+
+
+
+      child:Container(
+
+
+
+        width:
+        double.infinity,
+
+
+
+        height:
+        55,
+
+
+
+        decoration:
+        BoxDecoration(
+
+
+
+          color:
+          color.withOpacity(.9),
+
+
+
+
+          borderRadius:
+          BorderRadius.circular(18),
+
+
+
+
+          boxShadow:[
+
+
+
+            BoxShadow(
+
+              blurRadius:10,
+
+              color:
+              color.withOpacity(.35),
+
+            )
+
+          ],
+
+
+
         ),
 
 
-        label: Text(
 
-          text,
 
-          style: const TextStyle(
+        child:Row(
 
-            color: Colors.white,
 
-            fontSize: 15,
 
-          ),
+          mainAxisAlignment:
+          MainAxisAlignment.center,
+
+
+
+          children:[
+
+
+
+            Icon(
+
+              icon,
+
+              color:
+              Colors.white,
+
+              size:26,
+
+            ),
+
+
+
+
+
+            const SizedBox(width:15),
+
+
+
+
+
+            Text(
+
+
+
+              text,
+
+
+
+              style:
+              const TextStyle(
+
+
+
+                color:
+                Colors.white,
+
+
+
+                fontSize:16,
+
+
+
+                fontWeight:
+                FontWeight.bold,
+
+
+              ),
+
+
+
+            ),
+
+
+
+          ],
+
+
 
         ),
 
 
-
-        style: ElevatedButton.styleFrom(
-
-          backgroundColor: color,
-
-          shape: RoundedRectangleBorder(
-
-            borderRadius: BorderRadius.circular(26),
-
-          ),
-
-        ),
 
       ),
 
+
+
     );
 
+
   }
+
 
 
 }
