@@ -1,77 +1,49 @@
 import 'package:flutter/material.dart';
 import '../services/socket_service.dart';
 
+
 class KeyboardPage extends StatefulWidget {
+
   const KeyboardPage({super.key});
 
+
   @override
-  State<KeyboardPage> createState() => _KeyboardPageState();
+  State<KeyboardPage> createState() =>
+      _KeyboardPageState();
+
 }
+
+
 
 class _KeyboardPageState extends State<KeyboardPage> {
 
 
+
+  String lastKey = "None";
+
+
+
   void sendKey(String key) {
+
+
+    setState(() {
+
+      lastKey = key;
+
+    });
+
+
+
     SocketService.sendCommand(
+
       '{"type":"KEY_PRESS","key":"$key"}',
+
     );
+
+
   }
 
 
-  void sendCombo(String combo) {
-    SocketService.sendCommand(
-      '{"type":"KEY_COMBO","keys":"$combo"}',
-    );
-  }
-
-
-  Widget keyButton(String text,
-      {double width = 45, String? command}) {
-
-    return Container(
-      margin: const EdgeInsets.all(3),
-
-      child: SizedBox(
-        width: width,
-        height: 45,
-
-        child: ElevatedButton(
-
-          style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.zero,
-            backgroundColor: Colors.grey[850],
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
-            ),
-          ),
-
-          onPressed: () {
-            sendKey(command ?? text);
-          },
-
-          child: Text(
-            text,
-            style: const TextStyle(
-              fontSize: 13,
-            ),
-          ),
-
-        ),
-      ),
-    );
-  }
-
-
-
-  Widget keyboardRow(List<Widget> keys){
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: keys,
-    );
-
-  }
 
 
 
@@ -81,326 +53,932 @@ class _KeyboardPageState extends State<KeyboardPage> {
 
     return Scaffold(
 
-      backgroundColor: const Color(0xff121212),
+      backgroundColor:
+      const Color(0xff050816),
 
-      appBar: AppBar(
 
-        title: const Text(
-          "Keyboard",
+
+      body:
+
+
+      SafeArea(
+
+
+        child:
+
+
+        LayoutBuilder(
+
+
+          builder:(context,constraints){
+
+
+
+            return SingleChildScrollView(
+
+
+
+              child:
+
+
+              Padding(
+
+
+                padding:
+                const EdgeInsets.all(16),
+
+
+
+                child:
+
+
+                Column(
+
+
+                  children:[
+
+
+
+                    Row(
+
+
+                      mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
+
+
+                      children:[
+
+
+
+                        const Text(
+
+                          "Remote Keyboard",
+
+                          style:
+
+                          TextStyle(
+
+                            color:
+                            Colors.white,
+
+                            fontSize:26,
+
+                            fontWeight:
+                            FontWeight.bold,
+
+                          ),
+
+                        ),
+
+
+
+
+
+                        Container(
+
+                          padding:
+
+                          const EdgeInsets.symmetric(
+
+                            horizontal:12,
+
+                            vertical:7,
+
+                          ),
+
+
+
+                          decoration:
+
+                          BoxDecoration(
+
+                            color:
+                            Colors.green.withOpacity(.15),
+
+
+                            borderRadius:
+                            BorderRadius.circular(20),
+
+
+                            border:
+
+                            Border.all(
+
+                              color:
+                              Colors.greenAccent,
+
+                            ),
+
+                          ),
+
+
+
+                          child:
+
+                          const Text(
+
+                            "Connected",
+
+                            style:
+
+                            TextStyle(
+
+                              color:
+                              Colors.greenAccent,
+
+                              fontSize:13,
+
+                            ),
+
+                          ),
+
+
+
+                        ),
+
+
+
+                      ],
+
+
+
+                    ),
+
+
+
+
+
+                    const SizedBox(height:15),
+
+
+
+
+
+                    Container(
+
+
+                      width:
+                      double.infinity,
+
+
+
+                      padding:
+                      const EdgeInsets.all(12),
+
+
+
+                      decoration:
+
+                      BoxDecoration(
+
+                        color:
+                        Colors.white.withOpacity(.06),
+
+
+                        borderRadius:
+                        BorderRadius.circular(18),
+
+
+                        border:
+
+                        Border.all(
+
+                          color:
+                          Colors.blueAccent.withOpacity(.3),
+
+                        ),
+
+                      ),
+
+
+
+                      child:
+
+                      Text(
+
+                        "Last Key : $lastKey",
+
+                        textAlign:
+                        TextAlign.center,
+
+
+                        style:
+
+                        const TextStyle(
+
+                          color:
+                          Colors.white70,
+
+                        ),
+
+                      ),
+
+
+                    ),
+
+
+
+
+
+                    const SizedBox(height:20),
+
+
+
+
+
+                    Container(
+
+
+                      padding:
+                      const EdgeInsets.all(18),
+
+
+
+                      decoration:
+
+                      BoxDecoration(
+
+                        color:
+                        Colors.white.withOpacity(.05),
+
+
+                        borderRadius:
+                        BorderRadius.circular(28),
+
+
+                        border:
+
+                        Border.all(
+
+                          color:
+                          Colors.blueAccent.withOpacity(.35),
+
+                          width:1.5,
+
+                        ),
+
+
+                        boxShadow:[
+
+
+                          BoxShadow(
+
+                            color:
+                            Colors.blueAccent.withOpacity(.15),
+
+                            blurRadius:30,
+
+                          )
+
+                        ],
+
+
+
+                      ),
+
+
+
+
+                      child:
+
+
+                      Column(
+
+
+
+                        children:[
+
+
+
+
+                          _keyboardRow([
+
+                            "1","2","3","4","5",
+
+                            "6","7","8","9","0",
+
+                            "BACKSPACE"
+
+                          ]),
+
+
+
+
+                          const SizedBox(height:10),
+
+
+
+
+
+                          _keyboardRow([
+
+                            "TAB",
+
+                            "Q","W","E","R","T",
+
+                            "Y","U","I","O","P"
+
+                          ]),
+
+
+
+
+                          const SizedBox(height:10),
+
+
+
+
+
+                          _keyboardRow([
+
+
+                            "CAPS",
+
+                            "A","S","D","F","G",
+
+                            "H","J","K","L",
+
+                            "ENTER"
+
+
+                          ]),
+
+
+
+
+
+                          const SizedBox(height:10),
+
+
+
+
+
+                          _keyboardRow([
+
+
+                            "SHIFT",
+
+                            "Z","X","C","V",
+
+                            "B","N","M",
+
+                            "SHIFT"
+
+
+                          ]),
+
+
+
+
+
+
+                          const SizedBox(height:10),
+
+
+
+
+
+                          Row(
+
+
+                            mainAxisAlignment:
+                            MainAxisAlignment.center,
+
+
+                            children:[
+
+
+
+                              _smallKey("CTRL"),
+
+
+
+                              _smallKey("ALT"),
+
+
+
+                              Expanded(
+
+                                child:
+
+                                _spaceKey(),
+
+                              ),
+
+
+
+                              _smallKey("ALT"),
+
+
+
+                              _smallKey("WIN"),
+
+
+
+                            ],
+
+
+                          ),
+
+
+
+                        ],
+
+
+
+                      ),
+
+
+
+                    ),
+
+
+
+
+
+                    const SizedBox(height:25),
+
+
+
+
+
+
+                    const Text(
+
+                      "Navigation",
+
+                      style:
+
+                      TextStyle(
+
+                        color:
+                        Colors.white,
+
+                        fontSize:18,
+
+                        fontWeight:
+                        FontWeight.bold,
+
+                      ),
+
+                    ),
+
+
+
+
+                    const SizedBox(height:12),
+
+
+
+
+
+                    Column(
+
+
+                      children:[
+
+
+
+                        _arrowKey("↑"),
+
+
+
+                        Row(
+
+
+                          mainAxisAlignment:
+                          MainAxisAlignment.center,
+
+
+                          children:[
+
+
+
+                            _arrowKey("←"),
+
+
+
+                            _arrowKey("↓"),
+
+
+
+                            _arrowKey("→"),
+
+
+
+                          ],
+
+
+                        ),
+
+
+
+                      ],
+
+
+                    ),
+
+
+
+
+                  ],
+
+                ),
+
+              ),
+
+
+
+            );
+
+
+          },
+
+
         ),
 
-        centerTitle: true,
 
       ),
 
-
-      body: SingleChildScrollView(
-
-        child: Column(
-
-          mainAxisAlignment: MainAxisAlignment.center,
-
-          children: [
-
-
-            const SizedBox(height: 15),
-
-
-            // Number Row
-            keyboardRow([
-
-              keyButton("Esc"),
-
-              keyButton("1"),
-              keyButton("2"),
-              keyButton("3"),
-              keyButton("4"),
-              keyButton("5"),
-              keyButton("6"),
-              keyButton("7"),
-              keyButton("8"),
-              keyButton("9"),
-              keyButton("0"),
-
-              keyButton("-"),
-              keyButton("="),
-
-              keyButton(
-                "Back",
-                width: 70,
-                command: "BACKSPACE",
-              ),
-
-            ]),
-
-
-
-            // Q Row
-            keyboardRow([
-
-              keyButton(
-                "Tab",
-                width: 60,
-              ),
-
-              keyButton("Q"),
-              keyButton("W"),
-              keyButton("E"),
-              keyButton("R"),
-              keyButton("T"),
-              keyButton("Y"),
-              keyButton("U"),
-              keyButton("I"),
-              keyButton("O"),
-              keyButton("P"),
-
-              keyButton("["),
-              keyButton("]"),
-
-            ]),
-
-
-
-            // A Row
-            keyboardRow([
-
-              keyButton(
-                "Caps",
-                width: 70,
-              ),
-
-              keyButton("A"),
-              keyButton("S"),
-              keyButton("D"),
-              keyButton("F"),
-              keyButton("G"),
-              keyButton("H"),
-              keyButton("J"),
-              keyButton("K"),
-              keyButton("L"),
-
-              keyButton(";"),
-              keyButton("'"),
-
-              keyButton(
-                "Enter",
-                width: 75,
-                command: "ENTER",
-              ),
-
-            ]),
-
-
-
-
-            // Z Row
-            keyboardRow([
-
-
-              keyButton(
-                "Shift",
-                width: 85,
-              ),
-
-
-              keyButton("Z"),
-              keyButton("X"),
-              keyButton("C"),
-              keyButton("V"),
-              keyButton("B"),
-              keyButton("N"),
-              keyButton("M"),
-
-              keyButton(","),
-              keyButton("."),
-              keyButton("/"),
-
-
-              keyButton(
-                "Shift",
-                width: 85,
-              ),
-
-
-            ]),
-
-
-
-
-            // Bottom Row
-
-            keyboardRow([
-
-
-              keyButton(
-                "Ctrl",
-                width: 60,
-              ),
-
-
-              keyButton(
-                "Alt",
-                width: 55,
-              ),
-
-
-
-              SizedBox(
-
-                width: 180,
-                height: 45,
-
-                child: ElevatedButton(
-
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[850],
-                    foregroundColor: Colors.white,
-                  ),
-
-
-                  onPressed: (){
-
-                    sendKey("SPACE");
-
-                  },
-
-
-                  child: const Text(
-                    "SPACE",
-                  ),
-
-                ),
-
-              ),
-
-
-
-              keyButton(
-                "Alt",
-                width: 55,
-              ),
-
-
-
-              keyButton(
-                "Ctrl",
-                width: 60,
-              ),
-
-
-
-            ]),
-
-
-
-            const SizedBox(height: 25),
-
-
-
-            // Arrow Keys
-
-            keyboardRow([
-
-
-              keyButton(
-                "↑",
-                command: "ARROW_UP",
-              )
-
-
-            ]),
-
-
-
-            keyboardRow([
-
-              keyButton(
-                "←",
-                command: "ARROW_LEFT",
-              ),
-
-
-              keyButton(
-                "↓",
-                command: "ARROW_DOWN",
-              ),
-
-
-              keyButton(
-                "→",
-                command: "ARROW_RIGHT",
-              ),
-
-
-            ]),
-
-
-
-            const SizedBox(height:20),
-
-
-
-            // Shortcut Buttons
-
-            Wrap(
-
-              alignment: WrapAlignment.center,
-
-              children: [
-
-
-                ElevatedButton(
-
-                  onPressed: (){
-
-                    sendCombo(
-                      "CTRL+ALT+DELETE",
-                    );
-
-                  },
-
-                  child: const Text(
-                    "CTRL + ALT + DEL",
-                  ),
-
-                ),
-
-
-
-                const SizedBox(width:10),
-
-
-
-                ElevatedButton(
-
-                  onPressed: (){
-
-                    sendCombo(
-                      "ALT+TAB",
-                    );
-
-                  },
-
-                  child: const Text(
-                    "ALT + TAB",
-                  ),
-
-                ),
-
-
-
-              ],
-
-            )
-
-
-
-          ],
-
-        ),
-
-      ),
 
     );
+
+
   }
+
+
+
+
+
+
+
+
+  Widget _keyboardRow(List<String> keys){
+
+
+    return Row(
+
+
+      mainAxisAlignment:
+      MainAxisAlignment.center,
+
+
+      children:
+
+
+      keys.map((key){
+
+
+        return Flexible(
+
+
+          child:
+
+
+          Padding(
+
+
+            padding:
+            const EdgeInsets.all(3),
+
+
+
+            child:
+
+            _keyButton(key),
+
+
+          ),
+
+
+        );
+
+
+      }).toList(),
+
+
+
+    );
+
+
+  }
+
+
+
+
+
+
+
+  Widget _keyButton(String key){
+
+
+    return GestureDetector(
+
+
+      onTap:
+
+          (){
+
+
+        sendKey(key);
+
+
+      },
+
+
+
+      child:
+
+
+      AnimatedContainer(
+
+
+        duration:
+        const Duration(milliseconds:120),
+
+
+
+        height:45,
+
+
+
+        decoration:
+
+        BoxDecoration(
+
+
+          gradient:
+
+          const LinearGradient(
+
+            colors:[
+
+              Color(0xff123B72),
+
+              Color(0xff081B36),
+
+            ],
+
+          ),
+
+
+
+          borderRadius:
+          BorderRadius.circular(10),
+
+
+
+          border:
+
+          Border.all(
+
+            color:
+            Colors.blueAccent.withOpacity(.4),
+
+          ),
+
+
+        ),
+
+
+
+
+        child:
+
+
+        Center(
+
+
+          child:
+
+
+          FittedBox(
+
+
+            child:
+
+
+            Text(
+
+              key,
+
+
+              style:
+
+              const TextStyle(
+
+                color:
+                Colors.white,
+
+                fontSize:11,
+
+                fontWeight:
+                FontWeight.bold,
+
+              ),
+
+
+            ),
+
+
+          ),
+
+
+        ),
+
+
+
+      ),
+
+
+
+    );
+
+
+  }
+
+
+
+
+
+
+
+  Widget _smallKey(String text){
+
+
+    return Padding(
+
+      padding:
+      const EdgeInsets.all(3),
+
+
+      child:
+
+      SizedBox(
+
+        width:55,
+
+        child:
+
+        _keyButton(text),
+
+
+      ),
+
+
+    );
+
+
+  }
+
+
+
+
+
+
+
+  Widget _spaceKey(){
+
+
+    return GestureDetector(
+
+
+      onTap:
+
+          (){
+
+
+        sendKey("SPACE");
+
+
+      },
+
+
+
+      child:
+
+
+      Container(
+
+
+        height:45,
+
+
+        decoration:
+
+        BoxDecoration(
+
+          gradient:
+
+          const LinearGradient(
+
+            colors:[
+
+              Color(0xff123B72),
+
+              Color(0xff081B36),
+
+            ],
+
+          ),
+
+
+          borderRadius:
+          BorderRadius.circular(10),
+
+
+
+          border:
+
+          Border.all(
+
+            color:
+            Colors.blueAccent.withOpacity(.4),
+
+          ),
+
+
+        ),
+
+
+
+        child:
+
+        const Center(
+
+          child:
+
+          Text(
+
+            "SPACE",
+
+            style:
+
+            TextStyle(
+
+              color:
+              Colors.white,
+
+              fontSize:11,
+
+              fontWeight:
+              FontWeight.bold,
+
+            ),
+
+          ),
+
+        ),
+
+
+
+      ),
+
+
+
+    );
+
+
+  }
+
+
+
+
+
+
+
+  Widget _arrowKey(String key){
+
+
+    return Padding(
+
+
+      padding:
+      const EdgeInsets.all(5),
+
+
+      child:
+
+      SizedBox(
+
+        width:55,
+
+        height:45,
+
+
+        child:
+
+        _keyButton(key),
+
+
+      ),
+
+
+    );
+
+
+  }
+
+
+
 }
