@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../services/socket_service.dart';
 import '../services/discovery_service.dart';
 
@@ -6,7 +7,6 @@ import '../services/discovery_service.dart';
 class IPConnectPage extends StatefulWidget {
 
   const IPConnectPage({super.key});
-
 
   @override
   State<IPConnectPage> createState() =>
@@ -23,22 +23,15 @@ class _IPConnectPageState extends State<IPConnectPage> {
   TextEditingController();
 
 
+  String status =
+      "Not Connected";
+
+
+  bool isLoading =
+  false;
+
+
   static const int serverPort = 12345;
-
-
-  String status = "Not Connected";
-
-
-  bool isLoading = false;
-
-
-  bool isConnecting = false;
-
-
-  List<String> availablePCs = [];
-
-
-  String? selectedIP;
 
 
 
@@ -54,16 +47,13 @@ class _IPConnectPageState extends State<IPConnectPage> {
 
 
 
-  Future<void> autoDetectPCs() async {
+  Future<void> autoDetectPC() async {
 
 
     setState(() {
 
       isLoading = true;
-
-      status = "Searching for PCs...";
-
-      availablePCs.clear();
+      status = "Searching PC...";
 
     });
 
@@ -77,58 +67,49 @@ class _IPConnectPageState extends State<IPConnectPage> {
 
 
 
-      setState(() {
+      if(pcs.isNotEmpty){
 
 
-        availablePCs = pcs;
-
-
-        isLoading = false;
+        ipController.text =
+            pcs.first;
 
 
 
-        if (pcs.isNotEmpty) {
-
-
-          selectedIP = pcs.first;
-
-
-          ipController.text =
-              pcs.first;
-
+        setState(() {
 
           status =
-          "${pcs.length} PC(s) Found";
+          "PC Found: ${pcs.first}";
+
+        });
 
 
-        }
 
-        else {
+      }
 
+      else{
+
+
+        setState(() {
 
           status =
           "No PC Found";
 
-        }
+        });
 
 
-      });
+      }
 
 
 
     }
 
-    catch(e) {
+    catch(e){
 
 
       setState(() {
 
-
-        isLoading = false;
-
         status =
         "Discovery Failed";
-
 
       });
 
@@ -136,8 +117,16 @@ class _IPConnectPageState extends State<IPConnectPage> {
     }
 
 
-  }
 
+
+    setState(() {
+
+      isLoading = false;
+
+    });
+
+
+  }
 
 
 
@@ -152,7 +141,7 @@ class _IPConnectPageState extends State<IPConnectPage> {
 
 
 
-    if(ip.isEmpty) {
+    if(ip.isEmpty){
 
 
       setState(() {
@@ -172,15 +161,10 @@ class _IPConnectPageState extends State<IPConnectPage> {
 
     setState(() {
 
-
-      isConnecting = true;
-
-      status =
-      "Connecting...";
-
+      isLoading = true;
+      status = "Connecting...";
 
     });
-
 
 
 
@@ -195,45 +179,47 @@ class _IPConnectPageState extends State<IPConnectPage> {
 
 
 
-    if(connected) {
+    if(connected){
 
 
       setState(() {
 
-
         status =
-        "Connected Successfully";
-
-
-        isConnecting = false;
-
+        "Connected";
 
       });
 
 
 
-      Navigator.pushReplacementNamed(
-        context,
-        "/home",
+
+      await Future.delayed(
+
+        const Duration(milliseconds:500),
+
       );
 
 
 
+      if(mounted){
+
+        Navigator.pushReplacementNamed(
+          context,
+          "/home",
+        );
+
+      }
+
+
     }
 
-    else {
+    else{
 
 
       setState(() {
-
 
         status =
         "Connection Failed";
 
-
-        isConnecting = false;
-
-
       });
 
 
@@ -241,528 +227,15 @@ class _IPConnectPageState extends State<IPConnectPage> {
 
 
 
-  }
 
+    setState(() {
 
+      isLoading = false;
 
-
-
-
-
-  Widget buildHeader() {
-
-
-    return Container(
-
-      width: double.infinity,
-
-      padding:
-      const EdgeInsets.all(24),
-
-
-      decoration: const BoxDecoration(
-
-        gradient: LinearGradient(
-
-          colors: [
-
-            Color(0xff1565C0),
-
-            Color(0xff42A5F5),
-
-          ],
-
-          begin: Alignment.topLeft,
-
-          end: Alignment.bottomRight,
-
-        ),
-
-        borderRadius: BorderRadius.only(
-
-          bottomLeft: Radius.circular(30),
-
-          bottomRight: Radius.circular(30),
-
-        ),
-
-      ),
-
-
-      child: Column(
-
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
-
-
-        children: [
-
-
-          const Icon(
-
-            Icons.computer_rounded,
-
-            color: Colors.white,
-
-            size: 50,
-
-          ),
-
-
-
-          const SizedBox(height: 12),
-
-
-
-          const Text(
-
-            "PC Controller",
-
-            style: TextStyle(
-
-              color: Colors.white,
-
-              fontSize: 28,
-
-              fontWeight: FontWeight.bold,
-
-            ),
-
-          ),
-
-
-
-          const SizedBox(height: 6),
-
-
-
-          Text(
-
-            "Connect your PC wirelessly",
-
-            style: TextStyle(
-
-              color:
-              Colors.white.withOpacity(.9),
-
-              fontSize: 15,
-
-            ),
-
-          ),
-
-
-        ],
-
-
-      ),
-
-
-    );
+    });
 
 
   }
-
-
-
-
-
-
-
-
-  Widget buildStatusCard() {
-
-
-    return Card(
-
-      elevation: 4,
-
-      shape: RoundedRectangleBorder(
-
-        borderRadius:
-        BorderRadius.circular(18),
-
-      ),
-
-
-      child: Padding(
-
-        padding:
-        const EdgeInsets.all(18),
-
-
-        child: Row(
-
-
-          children: [
-
-
-            CircleAvatar(
-
-              radius: 22,
-
-              backgroundColor:
-              status.contains("Connected")
-
-                  ? Colors.green
-
-                  : Colors.orange,
-
-
-              child: Icon(
-
-                status.contains("Connected")
-
-                    ? Icons.check
-
-                    : Icons.wifi_find,
-
-                color: Colors.white,
-
-              ),
-
-            ),
-
-
-
-            const SizedBox(width: 15),
-
-
-
-            Expanded(
-
-              child: Column(
-
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
-
-
-                children: [
-
-
-                  const Text(
-
-                    "Connection Status",
-
-                    style: TextStyle(
-
-                      fontWeight:
-                      FontWeight.bold,
-
-                      fontSize: 16,
-
-                    ),
-
-                  ),
-
-
-
-                  const SizedBox(height: 4),
-
-
-
-                  Text(status),
-
-
-                ],
-
-
-              ),
-
-            )
-
-
-
-          ],
-
-
-        ),
-
-
-      ),
-
-
-    );
-
-
-  }
-
-
-
-
-
-
-
-
-  Widget buildPCList() {
-
-
-    if(isLoading) {
-
-
-      return const Padding(
-
-        padding:
-        EdgeInsets.all(25),
-
-        child: Center(
-
-          child:
-          CircularProgressIndicator(),
-
-        ),
-
-      );
-
-
-    }
-
-
-
-    if(availablePCs.isEmpty) {
-
-
-      return Card(
-
-
-        child: Padding(
-
-          padding:
-          const EdgeInsets.all(25),
-
-
-          child: Column(
-
-
-            children: const [
-
-
-              Icon(
-
-                Icons.search_off,
-
-                size: 45,
-
-                color: Colors.grey,
-
-              ),
-
-
-
-              SizedBox(height:10),
-
-
-
-              Text(
-
-                "No PC detected",
-
-                style: TextStyle(
-
-                  fontSize:16,
-
-                  fontWeight:
-                  FontWeight.bold,
-
-                ),
-
-              ),
-
-
-              SizedBox(height:5),
-
-
-              Text(
-
-                "Press Auto Detect to search",
-
-                textAlign:
-                TextAlign.center,
-
-              )
-
-            ],
-
-
-          ),
-
-        ),
-
-      );
-
-
-    }
-
-
-
-
-
-
-    return Column(
-
-
-      crossAxisAlignment:
-      CrossAxisAlignment.start,
-
-
-      children: [
-
-
-
-        const Text(
-
-          "Available PCs",
-
-          style: TextStyle(
-
-            fontSize:20,
-
-            fontWeight:
-            FontWeight.bold,
-
-          ),
-
-        ),
-
-
-
-        const SizedBox(height:10),
-
-
-
-
-        ...availablePCs.map((ip){
-
-
-
-          bool selected =
-              selectedIP == ip;
-
-
-
-
-          return Card(
-
-            elevation:
-            selected ? 6 : 2,
-
-
-            color:
-            selected
-
-                ? Colors.blue.shade50
-
-                : null,
-
-
-
-            shape:
-            RoundedRectangleBorder(
-
-              borderRadius:
-              BorderRadius.circular(16),
-
-            ),
-
-
-
-            child: ListTile(
-
-
-
-              leading: CircleAvatar(
-
-                backgroundColor:
-                Colors.blue,
-
-                child: const Icon(
-
-                  Icons.desktop_windows,
-
-                  color: Colors.white,
-
-                ),
-
-              ),
-
-
-
-
-              title: Text(
-
-                "PC Controller",
-
-                style: TextStyle(
-
-                  fontWeight:
-                  FontWeight.bold,
-
-                ),
-
-              ),
-
-
-
-              subtitle: Text(ip),
-
-
-
-              trailing:
-
-              selected
-
-                  ? const Icon(
-
-                Icons.check_circle,
-
-                color: Colors.green,
-
-              )
-
-                  : null,
-
-
-
-
-
-              onTap: () {
-
-
-                setState(() {
-
-
-                  selectedIP = ip;
-
-
-                  ipController.text =
-                      ip;
-
-
-                });
-
-
-              },
-
-
-            ),
-
-          );
-
-
-        })
-
-
-
-      ],
-
-
-    );
-
-
-  }
-
-
-
 
 
 
@@ -774,226 +247,546 @@ class _IPConnectPageState extends State<IPConnectPage> {
 
     return Scaffold(
 
-
-      body: SafeArea(
-
-
-        child: SingleChildScrollView(
-
-
-          child: Column(
-
-
-            children: [
-
-
-              buildHeader(),
+      backgroundColor:
+      const Color(0xff050816),
 
 
 
-              Padding(
+      body:
 
-                padding:
-                const EdgeInsets.all(20),
+      SafeArea(
 
+        child:
 
-                child: Column(
+        Center(
 
+          child:
 
-                  children: [
+          SingleChildScrollView(
 
-
-
-                    buildStatusCard(),
-
-
-
-                    const SizedBox(height:20),
+            padding:
+            const EdgeInsets.all(24),
 
 
 
+            child:
 
-                    TextField(
+            Column(
 
-                      controller:
-                      ipController,
-
-
-                      decoration:
-                      InputDecoration(
-
-                        labelText:
-                        "Enter PC IP Address",
-
-                        prefixIcon:
-                        const Icon(
-
-                          Icons.language,
-
-                        ),
+              mainAxisAlignment:
+              MainAxisAlignment.center,
 
 
-                        border:
-                        OutlineInputBorder(
+              children: [
 
-                          borderRadius:
-                          BorderRadius.circular(15),
 
-                        ),
 
-                      ),
+                Container(
+
+                  height:90,
+
+                  width:90,
+
+
+                  decoration:
+
+                  BoxDecoration(
+
+                    shape:
+                    BoxShape.circle,
+
+
+                    gradient:
+
+                    const LinearGradient(
+
+                      colors:[
+
+                        Colors.blueAccent,
+
+                        Colors.cyanAccent,
+
+                      ],
 
                     ),
 
 
+                    boxShadow:[
+
+                      BoxShadow(
+
+                        color:
+                        Colors.blueAccent
+                            .withOpacity(.4),
+
+                        blurRadius:30,
+
+                      )
+
+                    ],
+
+                  ),
 
 
 
-                    const SizedBox(height:15),
+                  child:
+
+                  const Icon(
+
+                    Icons.computer,
+
+                    size:45,
+
+                    color:Colors.white,
+
+                  ),
+
+                ),
+
+
+
+
+                const SizedBox(height:25),
+
+
+
+
+                const Text(
+
+                  "PC Controller",
+
+                  style:
+
+                  TextStyle(
+
+                    color:Colors.white,
+
+                    fontSize:30,
+
+                    fontWeight:FontWeight.bold,
+
+                  ),
+
+                ),
+
+
+
+
+                const SizedBox(height:10),
+
+
+
+
+                Text(
+
+                  "Connect your PC using WiFi",
+
+                  style:
+
+                  TextStyle(
+
+                    color:Colors.grey,
+
+                    fontSize:15,
+
+                  ),
+
+                ),
+
+
+
+
+                const SizedBox(height:35),
 
 
 
 
 
-                    SizedBox(
+                Container(
 
-                      width:
-                      double.infinity,
-
-
-                      child: ElevatedButton.icon(
+                  padding:
+                  const EdgeInsets.all(20),
 
 
-                        onPressed:
-                        isLoading
-                            ? null
-                            : autoDetectPCs,
+                  decoration:
+
+                  BoxDecoration(
+
+                    color:
+                    Colors.white.withOpacity(.08),
 
 
-                        icon:
-                        const Icon(
-                          Icons.wifi_find,
-                        ),
+                    borderRadius:
+                    BorderRadius.circular(25),
 
 
-                        label:
-                        const Text(
-                          "Auto Detect PC",
-                        ),
+                    border:
 
+                    Border.all(
 
-                      ),
+                      color:
+                      Colors.blueAccent
+                          .withOpacity(.3),
 
                     ),
 
+                  ),
 
 
 
-                    const SizedBox(height:15),
+                  child:
+
+                  Column(
+
+                    children:[
 
 
 
+                      TextField(
+
+                        controller:
+                        ipController,
 
 
-                    SizedBox(
+                        style:
 
-                      width:
-                      double.infinity,
+                        const TextStyle(
 
+                          color:Colors.white,
 
-                      child: ElevatedButton.icon(
-
-
-                        onPressed:
-                        isConnecting
-                            ? null
-                            : connectToPC,
+                        ),
 
 
-                        icon:
 
-                        isConnecting
+                        decoration:
 
-                            ? const SizedBox(
+                        InputDecoration(
 
-                          width:20,
+                          hintText:
+                          "Enter PC IP Address",
 
-                          height:20,
 
-                          child:
-                          CircularProgressIndicator(
+                          hintStyle:
 
-                            strokeWidth:2,
+                          TextStyle(
 
                             color:
-                            Colors.white,
+                            Colors.grey.shade500,
 
                           ),
 
-                        )
 
-                            : const Icon(
-                          Icons.login,
+
+                          prefixIcon:
+
+                          const Icon(
+
+                            Icons.wifi,
+
+                            color:
+                            Colors.blueAccent,
+
+                          ),
+
+
+
+                          filled:true,
+
+
+                          fillColor:
+                          Colors.black26,
+
+
+
+                          border:
+
+                          OutlineInputBorder(
+
+                            borderRadius:
+                            BorderRadius.circular(15),
+
+                            borderSide:
+                            BorderSide.none,
+
+                          ),
+
                         ),
-
-
-
-                        label:
-                        Text(
-
-                          isConnecting
-
-                              ? "Connecting..."
-
-                              : "Connect",
-
-                        ),
-
 
                       ),
 
+
+
+
+
+                      const SizedBox(height:20),
+
+
+
+
+                      SizedBox(
+
+                        width:
+                        double.infinity,
+
+
+                        height:55,
+
+
+                        child:
+
+                        ElevatedButton.icon(
+
+
+                          onPressed:
+                          isLoading
+                              ? null
+                              : autoDetectPC,
+
+
+
+                          icon:
+
+                          const Icon(
+                            Icons.search,
+                          ),
+
+
+
+                          label:
+
+                          const Text(
+                            "Auto Detect PC",
+                          ),
+
+
+
+                          style:
+
+                          ElevatedButton.styleFrom(
+
+                            backgroundColor:
+                            Colors.blueAccent,
+
+                            foregroundColor:
+                            Colors.white,
+
+
+                            shape:
+
+                            RoundedRectangleBorder(
+
+                              borderRadius:
+                              BorderRadius.circular(15),
+
+                            ),
+
+                          ),
+
+
+
+                        ),
+
+                      ),
+
+
+
+
+                      const SizedBox(height:15),
+
+
+
+
+
+                      SizedBox(
+
+                        width:
+                        double.infinity,
+
+
+                        height:55,
+
+
+
+                        child:
+
+                        ElevatedButton.icon(
+
+
+
+                          onPressed:
+                          isLoading
+                              ? null
+                              : connectToPC,
+
+
+
+                          icon:
+
+                          isLoading
+
+                              ?
+
+                          const SizedBox(
+
+                            height:20,
+
+                            width:20,
+
+                            child:
+
+                            CircularProgressIndicator(
+
+                              strokeWidth:2,
+
+                              color:Colors.white,
+
+                            ),
+
+                          )
+
+
+                              :
+
+                          const Icon(
+                            Icons.link,
+                          ),
+
+
+
+
+                          label:
+
+                          Text(
+
+                            isLoading
+                                ? "Connecting..."
+                                : "Connect",
+
+                          ),
+
+
+
+
+                          style:
+
+                          ElevatedButton.styleFrom(
+
+                            backgroundColor:
+                            Colors.transparent,
+
+
+                            foregroundColor:
+                            Colors.white,
+
+
+                            side:
+
+                            const BorderSide(
+
+                              color:
+                              Colors.blueAccent,
+
+                            ),
+
+
+
+                            shape:
+
+                            RoundedRectangleBorder(
+
+                              borderRadius:
+                              BorderRadius.circular(15),
+
+                            ),
+
+                          ),
+
+
+
+                        ),
+
+                      ),
+
+
+
+                    ],
+
+                  ),
+
+                ),
+
+
+
+
+
+                const SizedBox(height:25),
+
+
+
+
+                Container(
+
+                  padding:
+
+                  const EdgeInsets.symmetric(
+
+                    horizontal:20,
+
+                    vertical:12,
+
+                  ),
+
+
+
+                  decoration:
+
+                  BoxDecoration(
+
+                    color:
+                    Colors.black45,
+
+
+                    borderRadius:
+                    BorderRadius.circular(30),
+
+                  ),
+
+
+
+                  child:
+
+
+                  Text(
+
+                    status,
+
+                    style:
+
+                    const TextStyle(
+
+                      color:Colors.white,
+
                     ),
 
-
-
-
-
-                    const SizedBox(height:25),
-
-
-
-
-                    buildPCList(),
-
-
-
-
-                  ],
+                  ),
 
 
                 ),
 
-              )
 
 
+              ],
 
-            ],
-
+            ),
 
           ),
 
-
-
         ),
-
 
       ),
 
-
     );
 
-
   }
-
 
 }
