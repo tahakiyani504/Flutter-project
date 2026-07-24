@@ -1,57 +1,145 @@
 import 'package:flutter/material.dart';
 
+
+import 'screens/splash_screen.dart';
 import 'screens/ip_connect_page.dart';
 import 'screens/home_screen.dart';
 
 
+
 void main() {
 
+
   runApp(
-      const PCControllerApp()
+
+    const PCControllerApp(),
+
   );
+
 
 }
 
 
 
+
 class PCControllerApp extends StatelessWidget {
 
+
   const PCControllerApp({super.key});
+
 
 
   @override
   Widget build(BuildContext context) {
 
+
     return MaterialApp(
 
-      debugShowCheckedModeBanner: false,
 
-      title: 'PC Controller',
+      debugShowCheckedModeBanner:false,
 
 
-      theme: ThemeData(
-        useMaterial3: true,
+      title:
+      "PC Controller",
+
+
+
+      theme:
+
+
+      ThemeData(
+
+
+        useMaterial3:true,
+
+
+        brightness:
+        Brightness.dark,
+
+
+
+        colorScheme:
+
+        ColorScheme.fromSeed(
+
+          seedColor:
+          Colors.blueAccent,
+
+
+          brightness:
+          Brightness.dark,
+
+        ),
+
+
+
+        scaffoldBackgroundColor:
+
+        const Color(0xff050816),
+
+
+
       ),
 
 
-      initialRoute: "/connect",
 
 
-      routes: {
+      initialRoute:
+
+      "/splash",
 
 
-        "/connect": (context) =>
+
+
+      routes:{
+
+
+
+
+        "/splash":
+
+
+            (context)=>
+
+
+        const SplashScreen(),
+
+
+
+
+
+
+        "/connect":
+
+
+            (context)=>
+
+
         const IPConnectPage(),
 
 
-        "/home": (context) =>
+
+
+
+
+        "/home":
+
+
+            (context)=>
+
+
         const HomeScreen(),
+
+
 
 
       },
 
+
+
     );
 
   }
+
 
 }
