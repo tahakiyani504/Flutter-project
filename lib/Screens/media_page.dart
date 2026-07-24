@@ -1,933 +1,687 @@
 import 'package:flutter/material.dart';
 import '../services/socket_service.dart';
 
-
 class MediaPage extends StatefulWidget {
-
   const MediaPage({super.key});
-
 
   @override
   State<MediaPage> createState() => _MediaPageState();
-
 }
 
+class _MediaPageState extends State<MediaPage>
+    with SingleTickerProviderStateMixin {
+
+  double volume = 50;
+  bool isPlaying = false;
+
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
 
 
-class _MediaPageState extends State<MediaPage> {
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
+
+    _scaleAnimation = Tween<double>(
+      begin: 1,
+      end: 1.08,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOut,
+      ),
+    );
+  }
 
 
-  double volumeLevel = 50;
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
 
-
-  void sendMediaCommand(String command){
-
-
+  void sendCommand(String command) {
     SocketService.sendCommand(command);
+  }
 
 
+  void togglePlay() {
 
-    if(command == "VOLUME_UP"){
+    setState(() {
+      isPlaying = !isPlaying;
+    });
 
-      setState(() {
+    _controller.forward().then(
+          (_) => _controller.reverse(),
+    );
 
-        volumeLevel =
-            (volumeLevel + 5).clamp(0,100);
-
-      });
-
-    }
-
-
-
-    if(command == "VOLUME_DOWN"){
-
-      setState(() {
-
-        volumeLevel =
-            (volumeLevel - 5).clamp(0,100);
-
-      });
-
-    }
+    sendCommand("MEDIA_PLAY_PAUSE");
+  }
 
 
+  void increaseVolume() {
+
+    setState(() {
+
+      volume += 5;
+
+      if (volume > 100) {
+        volume = 100;
+      }
+
+    });
+
+    sendCommand("VOLUME_UP");
+  }
+
+
+  void decreaseVolume() {
+
+    setState(() {
+
+      volume -= 5;
+
+      if (volume < 0) {
+        volume = 0;
+      }
+
+    });
+
+    sendCommand("VOLUME_DOWN");
   }
 
 
 
+  Widget glassCard({
+    required Widget child,
+    double padding = 20,
+  }) {
 
+    return Container(
+
+      padding: EdgeInsets.all(padding),
+
+      decoration: BoxDecoration(
+
+        color: Colors.white.withOpacity(0.06),
+
+        borderRadius: BorderRadius.circular(28),
+
+        border: Border.all(
+          color: Colors.blueAccent.withOpacity(0.25),
+          width: 1,
+        ),
+
+        boxShadow: [
+
+          BoxShadow(
+
+            color: Colors.blueAccent.withOpacity(0.15),
+
+            blurRadius: 30,
+
+            spreadRadius: 2,
+
+          )
+
+        ],
+
+      ),
+
+      child: child,
+
+    );
+  }
+
+
+
+  Widget controlButton({
+
+    required IconData icon,
+
+    required VoidCallback onTap,
+
+    Color color = Colors.white,
+
+    double size = 60,
+
+  }) {
+
+    return InkWell(
+
+      borderRadius: BorderRadius.circular(20),
+
+      onTap: onTap,
+
+      child: Container(
+
+        height: size,
+
+        width: size,
+
+        decoration: BoxDecoration(
+
+          color: Colors.white.withOpacity(0.08),
+
+          borderRadius: BorderRadius.circular(20),
+
+          border: Border.all(
+
+            color: Colors.blueAccent.withOpacity(0.25),
+
+          ),
+
+        ),
+
+        child: Icon(
+
+          icon,
+
+          color: color,
+
+          size: size * 0.45,
+
+        ),
+
+      ),
+
+    );
+  }
 
 
 
   @override
   Widget build(BuildContext context) {
 
+    final size = MediaQuery.of(context).size;
+
 
     return Scaffold(
 
+      backgroundColor: const Color(0xff07111f),
 
 
-      backgroundColor:
-      const Color(0xff101010),
+      body: SafeArea(
+
+        child: Center(
+
+          child: SingleChildScrollView(
+
+            physics: const BouncingScrollPhysics(),
+
+            padding: const EdgeInsets.all(20),
+
+
+            child: ConstrainedBox(
+
+              constraints: const BoxConstraints(
+
+                maxWidth: 520,
+
+              ),
+
+
+              child: Column(
+
+                mainAxisAlignment: MainAxisAlignment.center,
+
+                children: [
+
+
+
+                  Row(
+
+                    mainAxisAlignment: MainAxisAlignment.center,
+
+                    children: [
+
+                      const Icon(
+
+                        Icons.music_note_rounded,
+
+                        color: Colors.blueAccent,
+
+                        size: 34,
+
+                      ),
+
+                      const SizedBox(width: 10),
+
+
+                      Text(
+
+                        "Media Controller",
+
+                        style: Theme.of(context)
+
+                            .textTheme
+
+                            .headlineSmall
+
+                            ?.copyWith(
+
+                          color: Colors.white,
+
+                          fontWeight: FontWeight.bold,
+
+                          letterSpacing: 0.5,
+
+                        ),
+
+                      ),
+
+                    ],
+
+                  ),
+
+
+
+                  const SizedBox(height: 30),
+
+
+
+                  glassCard(
+
+                    padding: 25,
+
+                    child: Column(
+
+                      children: [
+
+
+                        ScaleTransition(
+
+                          scale: _scaleAnimation,
+
+                          child: GestureDetector(
+
+                            onTap: togglePlay,
+
+                            child: Container(
+
+                              height: 110,
+
+                              width: 110,
+
+                              decoration: BoxDecoration(
+
+                                shape: BoxShape.circle,
+
+                                gradient: const LinearGradient(
+
+                                  colors: [
+
+                                    Color(0xff007BFF),
+
+                                    Color(0xff00C6FF),
+
+                                  ],
+
+                                ),
+
+                                boxShadow: [
+
+                                  BoxShadow(
+
+                                    color: Colors.blueAccent
+                                        .withOpacity(0.45),
+
+                                    blurRadius: 35,
+
+                                    spreadRadius: 5,
+
+                                  )
+
+                                ],
+
+                              ),
+
+                              child: Icon(
+
+                                isPlaying
+
+                                    ? Icons.pause_rounded
+
+                                    : Icons.play_arrow_rounded,
+
+                                size: 60,
+
+                                color: Colors.white,
+
+                              ),
+
+                            ),
+
+                          ),
+
+                        ),
+
+
+
+                        const SizedBox(height: 35),
+
+
+
+                        Row(
+
+                          mainAxisAlignment:
+                          MainAxisAlignment.spaceEvenly,
+
+                          children: [
+
+
+                            controlButton(
+
+                              icon: Icons.skip_previous_rounded,
+
+                              onTap: () {
+
+                                sendCommand("MEDIA_PREV");
+
+                              },
+
+                            ),
+
+
+
+                            controlButton(
+
+                              icon: Icons.stop_rounded,
+
+                              color: Colors.redAccent,
+
+                              onTap: () {
+
+                                sendCommand("MEDIA_STOP");
+
+                                setState(() {
+
+                                  isPlaying = false;
+
+                                });
+
+                              },
+
+                            ),
+
+
+
+                            controlButton(
+
+                              icon: Icons.skip_next_rounded,
+
+                              onTap: () {
+
+                                sendCommand("MEDIA_NEXT");
+
+                              },
+
+                            ),
+
+
+                          ],
+
+                        ),
+
+                      ],
+
+                    ),
+
+                  ),
 
 
 
 
-
-      appBar:AppBar(
-
+                  const SizedBox(height: 25),
 
 
-        title:
-        const Text(
 
-          "Media Control",
 
-          style:
-          TextStyle(
+                  glassCard(
 
-            fontWeight:
-            FontWeight.bold,
+                    padding: 25,
+
+                    child: Column(
+
+                      children: [
+
+
+                        Row(
+
+                          mainAxisAlignment:
+                          MainAxisAlignment.center,
+
+                          children: [
+
+
+                            const Icon(
+
+                              Icons.volume_up_rounded,
+
+                              color: Colors.blueAccent,
+
+                            ),
+
+
+                            const SizedBox(width: 10),
+
+
+                            Text(
+
+                              "${volume.round()}%",
+
+                              style: const TextStyle(
+
+                                color: Colors.white,
+
+                                fontSize: 20,
+
+                                fontWeight: FontWeight.bold,
+
+                              ),
+
+                            ),
+
+
+                          ],
+
+                        ),
+
+
+
+                        const SizedBox(height: 15),
+
+
+
+                        SliderTheme(
+
+                          data: SliderTheme.of(context).copyWith(
+
+                            trackHeight: 8,
+
+                            thumbShape:
+                            const RoundSliderThumbShape(
+
+                              enabledThumbRadius: 10,
+
+                            ),
+
+                          ),
+
+                          child: Slider(
+
+                            value: volume,
+
+                            min: 0,
+
+                            max: 100,
+
+                            activeColor: Colors.blueAccent,
+
+                            inactiveColor:
+                            Colors.white.withOpacity(0.15),
+
+                            onChanged: (value) {
+
+                              setState(() {
+
+                                volume = value;
+
+                              });
+
+                            },
+
+                          ),
+
+                        ),
+
+
+
+                        const SizedBox(height: 20),
+
+
+
+                        Row(
+
+                          mainAxisAlignment:
+                          MainAxisAlignment.center,
+
+                          children: [
+
+
+                            Expanded(
+
+                              child: ElevatedButton.icon(
+
+                                style:
+                                ElevatedButton.styleFrom(
+
+                                  backgroundColor:
+                                  Colors.white.withOpacity(0.08),
+
+                                  foregroundColor:
+                                  Colors.white,
+
+                                  padding:
+                                  const EdgeInsets.symmetric(
+
+                                    vertical: 15,
+
+                                  ),
+
+                                  shape:
+                                  RoundedRectangleBorder(
+
+                                    borderRadius:
+                                    BorderRadius.circular(18),
+
+                                  ),
+
+                                ),
+
+                                onPressed: decreaseVolume,
+
+                                icon: const Icon(
+                                  Icons.volume_down_rounded,
+                                ),
+
+                                label: const Text(
+                                  "Volume -",
+                                ),
+
+                              ),
+
+                            ),
+
+
+
+                            const SizedBox(width: 15),
+
+
+
+                            Expanded(
+
+                              child: ElevatedButton.icon(
+
+                                style:
+                                ElevatedButton.styleFrom(
+
+                                  backgroundColor:
+                                  Colors.blueAccent,
+
+                                  foregroundColor:
+                                  Colors.white,
+
+                                  padding:
+                                  const EdgeInsets.symmetric(
+
+                                    vertical: 15,
+
+                                  ),
+
+                                  shape:
+                                  RoundedRectangleBorder(
+
+                                    borderRadius:
+                                    BorderRadius.circular(18),
+
+                                  ),
+
+                                ),
+
+                                onPressed: increaseVolume,
+
+                                icon: const Icon(
+                                  Icons.volume_up_rounded,
+                                ),
+
+                                label: const Text(
+                                  "Volume +",
+                                ),
+
+                              ),
+
+                            ),
+
+
+                          ],
+
+                        ),
+
+                      ],
+
+                    ),
+
+                  ),
+
+
+                  SizedBox(
+
+                    height: size.height * 0.03,
+
+                  ),
+
+
+                ],
+
+              ),
+
+            ),
 
           ),
 
         ),
 
-
-
-        centerTitle:true,
-
-        backgroundColor:
-        const Color(0xff101010),
-
-
-
       ),
-
-
-
-
-
-
-      body:SafeArea(
-
-
-
-        child:LayoutBuilder(
-
-
-
-          builder:(context,constraints){
-
-
-
-            return SingleChildScrollView(
-
-
-              physics:
-              const BouncingScrollPhysics(),
-
-
-
-              padding:
-              const EdgeInsets.all(16),
-
-
-
-              child:Column(
-
-
-
-                mainAxisAlignment:
-                MainAxisAlignment.center,
-
-
-
-                children:[
-
-
-
-
-
-
-
-                  Container(
-
-
-
-                    width:
-                    constraints.maxWidth > 600
-
-                        ? 500
-
-                        : double.infinity,
-
-
-
-
-
-                    padding:
-                    EdgeInsets.all(
-
-                      constraints.maxHeight < 500
-
-                          ? 15
-
-                          : 22,
-
-                    ),
-
-
-
-
-
-                    decoration:
-                    BoxDecoration(
-
-
-
-                      color:
-                      const Color(0xff1c1c1c),
-
-
-
-
-                      borderRadius:
-                      BorderRadius.circular(25),
-
-
-
-
-                      border:Border.all(
-
-                        color:
-                        Colors.blueAccent
-                            .withOpacity(.3),
-
-                      ),
-
-
-
-                    ),
-
-
-
-
-
-
-                    child:Column(
-
-
-
-                      children:[
-
-
-
-
-
-                        Icon(
-
-                          Icons.music_note,
-
-                          size:
-
-                          constraints.maxHeight < 500
-
-                              ? 45
-
-                              : 60,
-
-
-                          color:
-                          Colors.blueAccent,
-
-                        ),
-
-
-
-
-
-                        const SizedBox(height:10),
-
-
-
-
-
-                        const Text(
-
-
-
-                          "Remote Media",
-
-
-
-                          style:
-                          TextStyle(
-
-
-
-                            color:
-                            Colors.white,
-
-
-
-                            fontSize:20,
-
-
-
-                            fontWeight:
-                            FontWeight.bold,
-
-
-                          ),
-
-
-                        ),
-
-
-
-
-
-                        const SizedBox(height:20),
-
-
-
-
-
-                        Row(
-
-
-
-                          mainAxisAlignment:
-                          MainAxisAlignment.spaceEvenly,
-
-
-
-                          children:[
-
-
-
-                            mediaButton(
-
-                              icon:
-                              Icons.skip_previous,
-
-                              text:"Prev",
-
-                              command:
-                              "MEDIA_PREV",
-
-                              constraints:
-                              constraints,
-
-                            ),
-
-
-
-
-
-                            mediaButton(
-
-                              icon:
-                              Icons.play_arrow,
-
-                              text:"Play",
-
-                              command:
-                              "MEDIA_PLAY_PAUSE",
-
-                              big:true,
-
-                              constraints:
-                              constraints,
-
-                            ),
-
-
-
-
-
-                            mediaButton(
-
-                              icon:
-                              Icons.skip_next,
-
-                              text:"Next",
-
-                              command:
-                              "MEDIA_NEXT",
-
-                              constraints:
-                              constraints,
-
-                            ),
-
-
-
-                          ],
-
-
-                        )
-
-
-
-                      ],
-
-
-
-                    ),
-
-
-
-
-                  ),
-
-
-
-
-
-
-                  const SizedBox(height:20),
-
-
-
-
-
-
-
-
-                  Container(
-
-
-
-                    width:
-                    constraints.maxWidth > 600
-
-                        ? 500
-
-                        : double.infinity,
-
-
-
-
-                    padding:
-                    const EdgeInsets.all(20),
-
-
-
-
-
-                    decoration:
-                    BoxDecoration(
-
-
-
-                      color:
-                      const Color(0xff1c1c1c),
-
-
-
-                      borderRadius:
-                      BorderRadius.circular(25),
-
-
-
-                    ),
-
-
-
-
-
-
-                    child:Column(
-
-
-
-                      children:[
-
-
-
-
-
-                        Row(
-
-
-
-                          mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween,
-
-
-
-                          children:[
-
-
-
-                            const Text(
-
-                              "Volume",
-
-                              style:
-                              TextStyle(
-
-                                color:
-                                Colors.white,
-
-                                fontSize:18,
-
-                                fontWeight:
-                                FontWeight.bold,
-
-                              ),
-
-                            ),
-
-
-
-
-                            Text(
-
-                              "${volumeLevel.toInt()}%",
-
-                              style:
-                              const TextStyle(
-
-                                color:
-                                Colors.blueAccent,
-
-                                fontSize:18,
-
-                                fontWeight:
-                                FontWeight.bold,
-
-                              ),
-
-                            ),
-
-
-
-                          ],
-
-
-
-                        ),
-
-
-
-
-
-
-                        const SizedBox(height:15),
-
-
-
-
-
-
-                        ClipRRect(
-
-
-
-                          borderRadius:
-                          BorderRadius.circular(20),
-
-
-
-                          child:
-                          LinearProgressIndicator(
-
-
-
-                            minHeight:15,
-
-
-
-                            value:
-                            volumeLevel/100,
-
-
-
-                            backgroundColor:
-                            Colors.grey[800],
-
-
-
-
-                            valueColor:
-                            const AlwaysStoppedAnimation(
-
-                              Colors.blueAccent,
-
-                            ),
-
-
-
-
-                          ),
-
-
-
-                        ),
-
-
-
-
-
-                        const SizedBox(height:25),
-
-
-
-
-
-
-
-                        Row(
-
-
-
-                          mainAxisAlignment:
-                          MainAxisAlignment.spaceEvenly,
-
-
-
-                          children:[
-
-
-
-                            mediaButton(
-
-                              icon:
-                              Icons.volume_down,
-
-                              text:"Vol -",
-
-                              command:
-                              "VOLUME_DOWN",
-
-                              constraints:
-                              constraints,
-
-                            ),
-
-
-
-
-
-                            mediaButton(
-
-                              icon:
-                              Icons.stop,
-
-                              text:"Stop",
-
-                              command:
-                              "MEDIA_STOP",
-
-                              constraints:
-                              constraints,
-
-                            ),
-
-
-
-
-
-                            mediaButton(
-
-                              icon:
-                              Icons.volume_up,
-
-                              text:"Vol +",
-
-                              command:
-                              "VOLUME_UP",
-
-                              constraints:
-                              constraints,
-
-                            ),
-
-
-
-                          ],
-
-
-
-                        )
-
-
-
-
-                      ],
-
-
-
-                    ),
-
-
-
-
-                  ),
-
-
-
-
-                ],
-
-
-
-              ),
-
-
-
-            );
-
-
-
-          },
-
-        ),
-
-
-
-      ),
-
-
 
     );
 
-
   }
-
-
-
-
-
-
-
-
-
-
-
-
-  Widget mediaButton({
-
-
-    required IconData icon,
-
-    required String text,
-
-    required String command,
-
-    required BoxConstraints constraints,
-
-
-    bool big=false,
-
-
-  }) {
-
-
-
-    double size = constraints.maxWidth < 400
-
-        ? 65
-
-        : 75;
-
-
-
-    if(big){
-
-      size += 15;
-
-    }
-
-
-
-
-
-
-    return InkWell(
-
-
-
-      borderRadius:
-      BorderRadius.circular(20),
-
-
-
-
-      onTap:(){
-
-
-
-        sendMediaCommand(command);
-
-
-
-      },
-
-
-
-
-      child:AnimatedContainer(
-
-
-
-        duration:
-        const Duration(milliseconds:200),
-
-
-
-
-        width:size,
-
-        height:size,
-
-
-
-
-        decoration:
-        BoxDecoration(
-
-
-
-          color:
-
-          big
-
-              ? Colors.blueAccent
-
-              : const Color(0xff252525),
-
-
-
-
-          borderRadius:
-          BorderRadius.circular(20),
-
-
-
-
-          boxShadow:[
-
-
-
-            BoxShadow(
-
-              blurRadius:10,
-
-              color:
-              Colors.black.withOpacity(.5),
-
-            )
-
-
-          ],
-
-
-
-        ),
-
-
-
-
-
-        child:Column(
-
-
-
-          mainAxisAlignment:
-          MainAxisAlignment.center,
-
-
-
-          children:[
-
-
-
-            Icon(
-
-              icon,
-
-              size:
-              big ? 35 : 28,
-
-              color:
-              Colors.white,
-
-            ),
-
-
-
-
-
-            const SizedBox(height:5),
-
-
-
-
-
-
-            Text(
-
-
-
-              text,
-
-
-
-              textAlign:
-              TextAlign.center,
-
-
-
-              style:
-              const TextStyle(
-
-
-
-                color:
-                Colors.white,
-
-
-
-                fontSize:10,
-
-
-
-                fontWeight:
-                FontWeight.w600,
-
-
-              ),
-
-
-
-            ),
-
-
-
-          ],
-
-
-
-        ),
-
-
-
-
-      ),
-
-
-
-    );
-
-
-  }
-
-
 
 }
