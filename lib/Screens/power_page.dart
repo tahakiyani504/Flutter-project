@@ -1,747 +1,357 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../services/socket_service.dart';
 
-
 class PowerPage extends StatefulWidget {
-
   const PowerPage({super.key});
-
 
   @override
   State<PowerPage> createState() => _PowerPageState();
-
 }
 
+class _PowerPageState extends State<PowerPage>
+    with SingleTickerProviderStateMixin {
 
+  late AnimationController _controller;
 
-class _PowerPageState extends State<PowerPage> {
+  String? activeCommand;
 
+  @override
+  void initState() {
+    super.initState();
 
-
-  void confirmAndSend(
-      BuildContext context,
-      String command,
-      ) {
-
-
-    String title;
-    String message;
-
-
-
-    switch(command){
-
-
-      case "POWER_OFF":
-
-        title = "Shutdown PC";
-
-        message =
-        "Are you sure you want to shutdown your PC?";
-
-        break;
-
-
-
-      case "RESTART":
-
-        title = "Restart PC";
-
-        message =
-        "Are you sure you want to restart your PC?";
-
-        break;
-
-
-
-      case "SLEEP":
-
-        title = "Sleep Mode";
-
-        message =
-        "Put your PC into sleep mode?";
-
-        break;
-
-
-
-      default:
-
-        title = "Confirm";
-
-        message =
-        "Continue this action?";
-
-    }
-
-
-
-
-
-    showDialog(
-
-      context: context,
-
-
-      builder:(context){
-
-
-        return AlertDialog(
-
-
-          backgroundColor:
-          const Color(0xff202020),
-
-
-
-          shape:
-          RoundedRectangleBorder(
-
-            borderRadius:
-            BorderRadius.circular(20),
-
-          ),
-
-
-
-          title:Text(
-
-            title,
-
-            style:
-            const TextStyle(
-
-              color:Colors.white,
-
-              fontWeight:
-              FontWeight.bold,
-
-            ),
-
-          ),
-
-
-
-          content:Text(
-
-            message,
-
-            style:
-            const TextStyle(
-
-              color:Colors.white70,
-
-            ),
-
-          ),
-
-
-
-
-          actions:[
-
-
-
-            TextButton(
-
-              onPressed:(){
-
-                Navigator.pop(context);
-
-              },
-
-
-              child:
-              const Text(
-
-                "Cancel",
-
-                style:
-
-                TextStyle(
-
-                  color:
-                  Colors.grey,
-
-                ),
-
-              ),
-
-            ),
-
-
-
-
-            ElevatedButton(
-
-              style:
-              ElevatedButton.styleFrom(
-
-                backgroundColor:
-                Colors.blueAccent,
-
-              ),
-
-
-              onPressed:(){
-
-
-                Navigator.pop(context);
-
-
-                sendCommand(
-                    context,
-                    command
-                );
-
-
-              },
-
-
-
-              child:
-              const Text(
-
-                "Confirm",
-
-              ),
-
-
-            ),
-
-
-          ],
-
-
-
-        );
-
-
-      },
-
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
     );
-
-
   }
 
 
-
-
-
-
-
-  void sendCommand(
-      BuildContext context,
-      String command,
-      ){
-
-
-
-    try{
-
-
-      SocketService.sendCommand(command);
-
-
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-
-
-
-        SnackBar(
-
-          backgroundColor:
-          Colors.blueAccent,
-
-
-          content:
-          Text(
-
-            "$command sent",
-
-          ),
-
-
-        ),
-
-
-
-      );
-
-
-
-    }catch(e){
-
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-
-
-        const SnackBar(
-
-          content:
-          Text(
-            "Failed to send command",
-          ),
-
-        ),
-
-
-      );
-
-
-    }
-
-
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
 
+  void sendPowerCommand(String command) {
+
+    setState(() {
+      activeCommand = command;
+    });
+
+    SocketService.sendCommand(command);
 
 
-
-
+    Future.delayed(
+      const Duration(milliseconds: 400),
+          () {
+        if (mounted) {
+          setState(() {
+            activeCommand = null;
+          });
+        }
+      },
+    );
+  }
 
 
 
   @override
   Widget build(BuildContext context) {
 
+    final size = MediaQuery.of(context).size;
 
 
     return Scaffold(
+      backgroundColor: const Color(0xff050B18),
 
+      body: SafeArea(
+        child: SingleChildScrollView(
 
+          child: Center(
 
-      backgroundColor:
-      const Color(0xff101010),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
 
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
 
+                children: [
 
 
-      appBar:AppBar(
+                  const SizedBox(height: 25),
 
 
+                  // Heading
 
-        title:
-        const Text(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
 
-          "Power Control",
+                    children: const [
 
-          style:
-          TextStyle(
-
-            fontWeight:
-            FontWeight.bold,
-
-          ),
-
-        ),
-
-
-
-        centerTitle:true,
-
-
-        backgroundColor:
-        const Color(0xff101010),
-
-
-      ),
-
-
-
-
-
-
-
-      body:SafeArea(
-
-
-
-        child:LayoutBuilder(
-
-
-
-          builder:(context,constraints){
-
-
-
-            return SingleChildScrollView(
-
-
-              physics:
-              const BouncingScrollPhysics(),
-
-
-
-              child:ConstrainedBox(
-
-
-
-                constraints:
-
-                BoxConstraints(
-
-                  minHeight:
-                  constraints.maxHeight,
-
-                ),
-
-
-
-                child:Center(
-
-
-
-                  child:Container(
-
-
-
-                    width:
-
-                    constraints.maxWidth > 500
-
-                        ? 380
-
-                        : constraints.maxWidth * .90,
-
-
-
-
-
-                    margin:
-                    const EdgeInsets.all(15),
-
-
-
-
-
-                    padding:
-                    EdgeInsets.all(
-
-                      constraints.maxHeight < 500
-
-                          ? 18
-
-                          : 28,
-
-                    ),
-
-
-
-
-
-
-                    decoration:
-                    BoxDecoration(
-
-
-
-                      color:
-                      const Color(0xff1c1c1c),
-
-
-
-
-                      borderRadius:
-                      BorderRadius.circular(30),
-
-
-
-
-                      border:Border.all(
-
-                        color:
-
-                        Colors.blueAccent
-                            .withOpacity(.25),
-
+                      Icon(
+                        Icons.power_settings_new,
+                        color: Colors.blueAccent,
+                        size: 34,
                       ),
 
+                      SizedBox(width: 12),
 
 
+                      Text(
+                        "Power Controller",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
 
-                      boxShadow:[
 
+                  const SizedBox(height: 35),
 
 
-                        BoxShadow(
 
-                          blurRadius:20,
+                  // Main Power Card
 
-                          color:
+                  _glassCard(
 
-                          Colors.black
-                              .withOpacity(.5),
+                    width: size.width > 600
+                        ? 420
+                        : size.width * 0.9,
 
-                        )
+                    child: Column(
 
-                      ],
+                      children: [
 
-
-
-                    ),
-
-
-
-
-
-
-
-                    child:Column(
-
-
-
-                      mainAxisSize:
-                      MainAxisSize.min,
-
-
-
-                      children:[
-
-
-
-
-                        Container(
-
-
-
-                          padding:
-                          const EdgeInsets.all(15),
-
-
-
-
-                          decoration:
-                          const BoxDecoration(
-
-
-
-                            shape:
-                            BoxShape.circle,
-
-
-
-                            color:
-                            Color(0xff252525),
-
-
-
-                          ),
-
-
-
-
-                          child:
-                          Icon(
-
-
-
-                            Icons.power_settings_new,
-
-
-                            size:
-
-                            constraints.maxHeight < 500
-
-                                ? 45
-
-                                : 60,
-
-
-
-                            color:
-                            Colors.redAccent,
-
-
-                          ),
-
-
-
-
+                        const Icon(
+                          Icons.power,
+                          size: 90,
+                          color: Colors.redAccent,
                         ),
 
 
-
-
-
-
-                        const SizedBox(height:15),
-
-
-
-
-
+                        const SizedBox(height: 15),
 
 
                         const Text(
-
-
-
-                          "System Power",
-
-
-
-                          style:
-                          TextStyle(
-
-
-
-                            color:
-                            Colors.white,
-
-
-                            fontSize:22,
-
-
-                            fontWeight:
-                            FontWeight.bold,
-
-
+                          "Shutdown PC",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
                           ),
-
-
                         ),
 
 
+                        const SizedBox(height: 10),
 
 
-
-
-
-                        const SizedBox(height:25),
-
-
-
-
-
-
-                        powerButton(
-
-
-                          text:"Power Off",
-
-                          icon:
-                          Icons.power_settings_new,
-
-                          color:
-                          Colors.redAccent,
-
-                          command:
-                          "POWER_OFF",
-
+                        const Text(
+                          "Turn off your computer instantly",
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
                         ),
 
 
+                        const SizedBox(height: 25),
 
 
 
+                        _animatedButton(
 
-                        const SizedBox(height:12),
+                          title: "POWER OFF",
 
+                          icon: Icons.power_settings_new,
 
+                          color: Colors.redAccent,
 
+                          command: "POWER_OFF",
 
-
-
-                        powerButton(
-
-
-                          text:"Restart",
-
-                          icon:
-                          Icons.restart_alt,
-
-                          color:
-                          Colors.orangeAccent,
-
-                          command:
-                          "RESTART",
-
+                          height: 70,
                         ),
-
-
-
-
-
-
-
-                        const SizedBox(height:12),
-
-
-
-
-
-
-                        powerButton(
-
-
-                          text:"Sleep",
-
-                          icon:
-                          Icons.bedtime,
-
-                          color:
-                          Colors.green,
-
-                          command:
-                          "SLEEP",
-
-                        ),
-
-
 
 
                       ],
-
-
-
                     ),
-
-
-
                   ),
 
 
 
-                ),
+                  const SizedBox(height: 25),
 
 
 
+                  // Secondary actions
+
+
+                  Row(
+
+                    mainAxisAlignment: MainAxisAlignment.center,
+
+                    children: [
+
+                      Expanded(
+
+                        child: _actionCard(
+
+                          title: "Restart",
+
+                          icon: Icons.restart_alt,
+
+                          color: Colors.orangeAccent,
+
+                          command: "RESTART",
+
+                        ),
+                      ),
+
+
+                      const SizedBox(width: 15),
+
+
+                      Expanded(
+
+                        child: _actionCard(
+
+                          title: "Sleep",
+
+                          icon: Icons.bedtime,
+
+                          color: Colors.blueAccent,
+
+                          command: "SLEEP",
+
+                        ),
+                      ),
+
+
+                    ],
+                  ),
+
+
+
+                  const SizedBox(height: 35),
+
+
+                  Container(
+
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 12,
+                    ),
+
+                    decoration: BoxDecoration(
+
+                      color: Colors.white.withOpacity(0.05),
+
+                      borderRadius: BorderRadius.circular(20),
+
+                    ),
+
+
+                    child: const Text(
+
+                      "⚠ Power actions will affect your PC",
+
+                      style: TextStyle(
+                        color: Colors.white54,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+
+
+                ],
               ),
-
-
-
-            );
-
-
-          },
-
-
+            ),
+          ),
         ),
-
-
       ),
-
-
-
     );
-
   }
 
 
 
 
+  Widget _glassCard({
+
+    required Widget child,
+
+    required double width,
+
+  }) {
+
+
+    return ClipRRect(
+
+      borderRadius: BorderRadius.circular(30),
+
+
+      child: BackdropFilter(
+
+        filter: ImageFilter.blur(
+          sigmaX: 15,
+          sigmaY: 15,
+        ),
+
+
+        child: Container(
+
+          width: width,
+
+          padding: const EdgeInsets.all(25),
+
+
+          decoration: BoxDecoration(
+
+            color: Colors.white.withOpacity(0.08),
+
+            borderRadius: BorderRadius.circular(30),
+
+
+            border: Border.all(
+
+              color: Colors.white.withOpacity(0.15),
+
+            ),
+
+
+            boxShadow: [
+
+              BoxShadow(
+
+                color: Colors.blue.withOpacity(0.15),
+
+                blurRadius: 25,
+
+                spreadRadius: 3,
+
+              )
+
+            ],
+
+          ),
+
+
+          child: child,
+        ),
+      ),
+    );
+  }
 
 
 
 
+  Widget _actionCard({
 
-  Widget powerButton({
-
-
-    required String text,
+    required String title,
 
     required IconData icon,
 
@@ -749,177 +359,253 @@ class _PowerPageState extends State<PowerPage> {
 
     required String command,
 
-
   }) {
 
 
+    return GestureDetector(
 
-    return InkWell(
+      onTapDown: (_) {
 
-
-
-      borderRadius:
-      BorderRadius.circular(18),
-
-
-
-
-      onTap:(){
-
-
-
-        confirmAndSend(
-
-            context,
-
-            command
-
-        );
-
-
+        _controller.forward();
 
       },
 
 
+      onTapUp: (_) {
 
-      child:Container(
+        _controller.reverse();
 
+        sendPowerCommand(command);
 
-
-        width:
-        double.infinity,
-
-
-
-        height:
-        55,
+      },
 
 
+      onTapCancel: () {
 
-        decoration:
-        BoxDecoration(
+        _controller.reverse();
 
-
-
-          color:
-          color.withOpacity(.9),
+      },
 
 
+      child: AnimatedScale(
+
+        scale: activeCommand == command ? 0.94 : 1,
+
+        duration: const Duration(milliseconds: 150),
 
 
-          borderRadius:
-          BorderRadius.circular(18),
+        child: ClipRRect(
+
+          borderRadius: BorderRadius.circular(25),
 
 
+          child: BackdropFilter(
 
-
-          boxShadow:[
-
-
-
-            BoxShadow(
-
-              blurRadius:10,
-
-              color:
-              color.withOpacity(.35),
-
-            )
-
-          ],
-
-
-
-        ),
-
-
-
-
-        child:Row(
-
-
-
-          mainAxisAlignment:
-          MainAxisAlignment.center,
-
-
-
-          children:[
-
-
-
-            Icon(
-
-              icon,
-
-              color:
-              Colors.white,
-
-              size:26,
-
+            filter: ImageFilter.blur(
+              sigmaX: 12,
+              sigmaY: 12,
             ),
 
 
+            child: Container(
+
+              height: 150,
 
 
+              decoration: BoxDecoration(
 
-            const SizedBox(width:15),
-
-
-
+                color: Colors.white.withOpacity(0.07),
 
 
-            Text(
+                borderRadius: BorderRadius.circular(25),
 
 
+                border: Border.all(
 
-              text,
+                  color: color.withOpacity(0.4),
 
-
-
-              style:
-              const TextStyle(
-
-
-
-                color:
-                Colors.white,
-
-
-
-                fontSize:16,
-
-
-
-                fontWeight:
-                FontWeight.bold,
-
+                ),
 
               ),
 
 
+              child: Column(
+
+                mainAxisAlignment: MainAxisAlignment.center,
+
+
+                children: [
+
+                  Icon(
+                    icon,
+                    size: 45,
+                    color: color,
+                  ),
+
+
+                  const SizedBox(height: 15),
+
+
+                  Text(
+
+                    title,
+
+                    style: const TextStyle(
+
+                      color: Colors.white,
+
+                      fontSize: 17,
+
+                      fontWeight: FontWeight.bold,
+
+                    ),
+                  ),
+
+
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+
+
+
+
+  Widget _animatedButton({
+
+    required String title,
+
+    required IconData icon,
+
+    required Color color,
+
+    required String command,
+
+    required double height,
+
+  }) {
+
+
+    return GestureDetector(
+
+      onTapDown: (_) {
+
+        _controller.forward();
+
+      },
+
+
+      onTapUp: (_) {
+
+        _controller.reverse();
+
+        sendPowerCommand(command);
+
+      },
+
+
+      onTapCancel: () {
+
+        _controller.reverse();
+
+      },
+
+
+      child: AnimatedScale(
+
+        scale: activeCommand == command ? 0.94 : 1,
+
+        duration: const Duration(milliseconds: 150),
+
+
+        child: Container(
+
+          height: height,
+
+
+          decoration: BoxDecoration(
+
+            gradient: LinearGradient(
+
+              colors: [
+
+                color,
+
+                color.withOpacity(0.65),
+
+              ],
 
             ),
 
 
-
-          ],
-
+            borderRadius: BorderRadius.circular(22),
 
 
+            boxShadow: [
+
+              BoxShadow(
+
+                color: color.withOpacity(0.5),
+
+                blurRadius: 20,
+
+                spreadRadius: 2,
+
+              )
+
+            ],
+
+          ),
+
+
+          child: Row(
+
+            mainAxisAlignment: MainAxisAlignment.center,
+
+
+            children: [
+
+
+              Icon(
+
+                icon,
+
+                color: Colors.white,
+
+                size: 30,
+
+              ),
+
+
+              const SizedBox(width: 12),
+
+
+              Text(
+
+                title,
+
+                style: const TextStyle(
+
+                  color: Colors.white,
+
+                  fontSize: 20,
+
+                  fontWeight: FontWeight.bold,
+
+                  letterSpacing: 1,
+
+                ),
+              ),
+
+            ],
+          ),
         ),
-
-
-
       ),
-
-
-
     );
-
-
   }
-
-
 
 }
