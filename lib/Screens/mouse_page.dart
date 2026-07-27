@@ -19,15 +19,12 @@ class _MousePageState extends State<MousePage>
     with SingleTickerProviderStateMixin {
 
 
-
-  double mouseSpeed = 1.0;
-
-
   Offset? lastPosition;
+
+  double mouseSpeed = 2.0;
 
 
   late AnimationController glowController;
-
 
 
 
@@ -37,27 +34,24 @@ class _MousePageState extends State<MousePage>
     super.initState();
 
 
-    glowController = AnimationController(
+    glowController =
+    AnimationController(
 
-      vsync:this,
+      vsync: this,
 
       duration:
-      const Duration(seconds:2),
+      const Duration(seconds: 2),
 
     )..repeat(
-
       reverse:true,
-
     );
 
   }
 
 
 
-
-
   @override
-  void dispose() {
+  void dispose(){
 
     glowController.dispose();
 
@@ -69,23 +63,30 @@ class _MousePageState extends State<MousePage>
 
 
 
-  void sendMouseMove(
-      double dx,
-      double dy,
-      ) {
-
-    int moveX = (dx * mouseSpeed).round();
-    int moveY = (dy * mouseSpeed).round();
+  void sendMouseMove(double dx,double dy){
 
 
-    if(moveX == 0 && moveY == 0){
+    int x =
+    (dx * mouseSpeed).round();
+
+
+    int y =
+    (dy * mouseSpeed).round();
+
+
+
+    if(x == 0 && y == 0){
       return;
     }
 
 
+
     SocketService.sendCommand(
-      '{"type":"MOUSE_MOVE","dx":$moveX,"dy":$moveY}',
+
+      '{"type":"MOUSE_MOVE","dx":$x,"dy":$y}',
+
     );
+
 
   }
 
@@ -96,13 +97,11 @@ class _MousePageState extends State<MousePage>
 
   void leftClick(){
 
-
     SocketService.sendCommand(
 
       '{"type":"MOUSE_LEFT_CLICK"}',
 
     );
-
 
   }
 
@@ -113,13 +112,11 @@ class _MousePageState extends State<MousePage>
 
   void rightClick(){
 
-
     SocketService.sendCommand(
 
       '{"type":"MOUSE_RIGHT_CLICK"}',
 
     );
-
 
   }
 
@@ -128,18 +125,13 @@ class _MousePageState extends State<MousePage>
 
 
 
-
-  void scrollMouse(
-      int amount,
-      ){
-
+  void scroll(int value){
 
     SocketService.sendCommand(
 
-      '{"type":"MOUSE_SCROLL","amount":$amount}',
+      '{"type":"MOUSE_SCROLL","amount":$value}',
 
     );
-
 
   }
 
@@ -155,51 +147,38 @@ class _MousePageState extends State<MousePage>
 
     return Scaffold(
 
-
       backgroundColor:
       const Color(0xff050816),
 
 
 
-
       body:
-
 
       SafeArea(
 
-
         child:
 
-
         Padding(
-
 
           padding:
           const EdgeInsets.all(20),
 
 
-
           child:
 
-
           Column(
-
 
             children:[
 
 
 
-
               Row(
-
 
                 mainAxisAlignment:
                 MainAxisAlignment.spaceBetween,
 
 
-
                 children:[
-
 
 
                   const Text(
@@ -223,7 +202,6 @@ class _MousePageState extends State<MousePage>
 
 
 
-
                   Container(
 
                     padding:
@@ -241,11 +219,12 @@ class _MousePageState extends State<MousePage>
                     BoxDecoration(
 
                       color:
-                      Colors.green
-                          .withOpacity(.15),
+                      Colors.green.withOpacity(.15),
+
 
                       borderRadius:
                       BorderRadius.circular(20),
+
 
                       border:
 
@@ -262,58 +241,27 @@ class _MousePageState extends State<MousePage>
 
                     child:
 
+                    const Text(
 
-                    const Row(
+                      "Connected",
 
-                      children:[
+                      style:
 
+                      TextStyle(
 
-                        Icon(
+                        color:
+                        Colors.greenAccent,
 
-                          Icons.circle,
-
-                          size:10,
-
-                          color:
-                          Colors.greenAccent,
-
-                        ),
-
-
-                        SizedBox(width:8),
-
-
-                        Text(
-
-                          "Connected",
-
-                          style:
-
-                          TextStyle(
-
-                            color:
-                            Colors.greenAccent,
-
-                            fontSize:13,
-
-                          ),
-
-                        ),
-
-
-                      ],
+                      ),
 
                     ),
 
-                  ),
-
+                  )
 
 
                 ],
 
               ),
-
-
 
 
 
@@ -326,7 +274,6 @@ class _MousePageState extends State<MousePage>
 
               Expanded(
 
-
                 child:
 
 
@@ -336,32 +283,22 @@ class _MousePageState extends State<MousePage>
                   glowController,
 
 
-                  builder:
-                      (context,child){
-
+                  builder:(context,child){
 
 
                     return Container(
-
 
 
                       decoration:
 
                       BoxDecoration(
 
+                        color:
+                        Colors.white.withOpacity(.06),
 
 
                         borderRadius:
                         BorderRadius.circular(30),
-
-
-
-                        color:
-
-                        Colors.white
-                            .withOpacity(.06),
-
-
 
 
                         border:
@@ -369,46 +306,30 @@ class _MousePageState extends State<MousePage>
                         Border.all(
 
                           color:
-
-                          Colors.blueAccent
-                              .withOpacity(.4),
-
-                          width:1.5,
+                          Colors.blueAccent,
 
                         ),
 
 
-
                         boxShadow:[
-
-
 
                           BoxShadow(
 
-                            color:
-
-                            Colors.blueAccent
-                                .withOpacity(
-
-                              0.15 +
-                                  glowController.value *
-                                      .15,
-
-                            ),
-
-
-                            blurRadius:35,
+                            blurRadius:30,
 
                             spreadRadius:5,
 
-                          ),
+                            color:
+                            Colors.blueAccent
+                                .withOpacity(
+                                .2),
 
+                          )
 
                         ],
 
-
-
                       ),
+
 
 
 
@@ -416,107 +337,45 @@ class _MousePageState extends State<MousePage>
                       child:
 
 
-                      GestureDetector(
+                      Listener(
 
-
-
-                        onPanStart:(details){
+                        onPointerDown:(event){
 
 
                           lastPosition =
-                              details.localPosition;
+                              event.localPosition;
 
 
                         },
 
 
 
-
-
-                        onPanUpdate:(details){
-
+                        onPointerMove:(event){
 
 
                           if(lastPosition != null){
 
 
+                            double dx =
 
-                            Offset difference =
-
-                                details.localPosition -
-                                    lastPosition!;
-
+                                event.localPosition.dx -
+                                    lastPosition!.dx;
 
 
-                            sendMouseMove(
+                            double dy =
 
-                              difference.dx,
+                                event.localPosition.dy -
+                                    lastPosition!.dy;
 
-                              difference.dy,
 
-                            );
+
+                            sendMouseMove(dx, dy);
 
 
 
                             lastPosition =
-                                details.localPosition;
+                                event.localPosition;
 
-
-                          }
-
-
-
-                        },
-
-
-
-
-
-                        onPanEnd:(details){
-
-
-                          lastPosition = null;
-
-
-                        },
-
-
-
-
-
-                        onTap:
-
-
-                        leftClick,
-
-
-
-
-
-                        onLongPress:
-
-
-                        rightClick,
-
-
-
-
-
-                        onVerticalDragUpdate:
-
-
-                            (details){
-
-
-                          if(details.delta.dy > 0){
-
-                            scrollMouse(-1);
-
-                          }
-
-                          else{
-
-                            scrollMouse(1);
 
                           }
 
@@ -524,136 +383,120 @@ class _MousePageState extends State<MousePage>
                         },
 
 
+
+                        onPointerUp:(event){
+
+                          lastPosition=null;
+
+                        },
 
 
 
                         child:
 
+                        GestureDetector(
 
-                        Center(
+
+                          onTap:
+                          leftClick,
+
+
+                          onLongPress:
+                          rightClick,
+
 
 
                           child:
 
 
-                          Column(
+                          Center(
+
+                            child:
+
+                            Column(
+
+                              mainAxisAlignment:
+                              MainAxisAlignment.center,
 
 
-                            mainAxisAlignment:
-                            MainAxisAlignment.center,
+                              children:[
 
 
+                                Icon(
 
-                            children:[
+                                  Icons.touch_app,
 
-
-
-
-                              Icon(
-
-                                Icons.touch_app_rounded,
-
-                                size:80,
-
-                                color:
-
-                                Colors.blueAccent
-                                    .withOpacity(.8),
-
-                              ),
-
-
-
-
-
-                              const SizedBox(height:20),
-
-
-
-
-                              Text(
-
-
-                                "Touchpad",
-
-
-                                style:
-
-
-                                TextStyle(
-
+                                  size:80,
 
                                   color:
-                                  Colors.white
-                                      .withOpacity(.9),
-
-
-                                  fontSize:24,
-
-
-                                  fontWeight:
-                                  FontWeight.bold,
-
+                                  Colors.blueAccent,
 
                                 ),
 
 
-                              ),
+
+                                const SizedBox(height:20),
 
 
 
+                                const Text(
 
-                              const SizedBox(height:10),
+                                  "Touchpad",
 
+                                  style:
 
+                                  TextStyle(
 
+                                    color:
+                                    Colors.white,
 
-                              Text(
+                                    fontSize:25,
 
+                                    fontWeight:
+                                    FontWeight.bold,
 
-                                "Drag to move mouse\nTap for left click\nHold for right click",
-
-
-                                textAlign:
-                                TextAlign.center,
-
-
-                                style:
-
-
-                                TextStyle(
-
-
-                                  color:
-                                  Colors.grey.shade400,
-
-
-                                  height:1.5,
-
+                                  ),
 
                                 ),
 
 
-                              ),
+
+                                const SizedBox(height:10),
 
 
 
+                                Text(
 
-                            ],
+                                  "Drag = Move Mouse\nTap = Left Click\nHold = Right Click",
+
+                                  textAlign:
+                                  TextAlign.center,
 
 
+                                  style:
+
+                                  TextStyle(
+
+                                    color:
+                                    Colors.grey,
+
+                                    height:1.5,
+
+                                  ),
+
+                                )
+
+
+                              ],
+
+
+                            ),
 
                           ),
 
-
-
                         ),
 
-
-
                       ),
-
-
 
                     );
 
@@ -667,6 +510,104 @@ class _MousePageState extends State<MousePage>
 
 
 
+              const SizedBox(height:15),
+
+
+
+
+              GestureDetector(
+
+                onVerticalDragUpdate:(details){
+
+
+                  if(details.delta.dy > 0){
+
+                    scroll(-3);
+
+                  }
+
+                  else{
+
+                    scroll(3);
+
+                  }
+
+                },
+
+
+
+                child:
+
+
+                Container(
+
+                  height:60,
+
+
+                  width:220,
+
+
+                  decoration:
+
+                  BoxDecoration(
+
+                    color:
+                    Colors.white.withOpacity(.08),
+
+
+                    borderRadius:
+                    BorderRadius.circular(20),
+
+
+                    border:
+
+                    Border.all(
+
+                      color:
+                      Colors.blueAccent,
+
+                    ),
+
+                  ),
+
+
+
+                  child:
+
+
+                  const Center(
+
+                    child:
+
+                    Text(
+
+                      "Scroll Area",
+
+                      style:
+
+                      TextStyle(
+
+                        color:
+                        Colors.white,
+
+                        fontWeight:
+                        FontWeight.bold,
+
+                      ),
+
+                    ),
+
+                  ),
+
+
+                ),
+
+              ),
+
+
+
+
+
 
               const SizedBox(height:20),
 
@@ -674,28 +615,22 @@ class _MousePageState extends State<MousePage>
 
 
 
-              Row(
 
+              Row(
 
                 children:[
 
 
-
                   Expanded(
-
 
                     child:
 
+                    button(
 
-                    _mouseButton(
-
-                      icon:
                       Icons.ads_click,
 
-                      title:
-                      "Left Click",
+                      "Left",
 
-                      onTap:
                       leftClick,
 
                     ),
@@ -704,34 +639,25 @@ class _MousePageState extends State<MousePage>
 
 
 
-
-
                   const SizedBox(width:15),
-
 
 
 
                   Expanded(
 
-
                     child:
 
+                    button(
 
-                    _mouseButton(
-
-                      icon:
                       Icons.mouse,
 
-                      title:
-                      "Right Click",
+                      "Right",
 
-                      onTap:
                       rightClick,
 
                     ),
 
                   ),
-
 
 
 
@@ -743,8 +669,7 @@ class _MousePageState extends State<MousePage>
 
 
 
-              const SizedBox(height:20),
-
+              const SizedBox(height:15),
 
 
 
@@ -752,20 +677,16 @@ class _MousePageState extends State<MousePage>
 
               Row(
 
-
                 mainAxisAlignment:
                 MainAxisAlignment.spaceBetween,
-
 
 
                 children:[
 
 
-
-
                   const Text(
 
-                    "Mouse Speed",
+                    "Speed",
 
                     style:
 
@@ -774,12 +695,9 @@ class _MousePageState extends State<MousePage>
                       color:
                       Colors.white,
 
-                      fontSize:16,
-
                     ),
 
                   ),
-
 
 
 
@@ -794,13 +712,9 @@ class _MousePageState extends State<MousePage>
                       color:
                       Colors.blueAccent,
 
-                      fontWeight:
-                      FontWeight.bold,
-
                     ),
 
-                  ),
-
+                  )
 
 
 
@@ -810,55 +724,32 @@ class _MousePageState extends State<MousePage>
 
 
 
-
-
               Slider(
-
 
                 value:
                 mouseSpeed,
 
 
+                min:.5,
 
-                min:
-                0.5,
-
-
-                max:
-                3.0,
+                max:5,
 
 
-
-                divisions:
-                10,
+                divisions:10,
 
 
-
-                activeColor:
-                Colors.blueAccent,
-
-
-
-                onChanged:(value){
-
-
+                onChanged:(v){
 
                   setState((){
 
-
-                    mouseSpeed =
-                        value;
-
+                    mouseSpeed=v;
 
                   });
-
 
                 },
 
 
-              ),
-
-
+              )
 
 
 
@@ -870,7 +761,6 @@ class _MousePageState extends State<MousePage>
 
       ),
 
-
     );
 
   }
@@ -880,71 +770,41 @@ class _MousePageState extends State<MousePage>
 
 
 
-  Widget _mouseButton({
-
-    required IconData icon,
-
-    required String title,
-
-    required VoidCallback onTap,
-
-  }){
+  Widget button(
+      IconData icon,
+      String text,
+      VoidCallback action
+      ){
 
 
     return GestureDetector(
 
-
-      onTap:
-      onTap,
-
+      onTap:action,
 
 
       child:
 
-
       Container(
 
-
-        height:60,
+        height:55,
 
 
         decoration:
 
-
         BoxDecoration(
 
-
-
           color:
-
-          Colors.white
-              .withOpacity(.08),
-
+          Colors.white.withOpacity(.08),
 
 
           borderRadius:
           BorderRadius.circular(18),
 
 
-
-          border:
-
-          Border.all(
-
-            color:
-            Colors.blueAccent
-                .withOpacity(.3),
-
-          ),
-
-
-
         ),
 
 
-
         child:
-
 
         Row(
 
@@ -955,25 +815,19 @@ class _MousePageState extends State<MousePage>
           children:[
 
 
-
             Icon(
-
               icon,
-
               color:
               Colors.blueAccent,
-
             ),
-
 
 
             const SizedBox(width:10),
 
 
-
             Text(
 
-              title,
+              text,
 
               style:
 
@@ -987,19 +841,14 @@ class _MousePageState extends State<MousePage>
 
               ),
 
-            ),
-
+            )
 
 
           ],
 
         ),
 
-
-
       ),
-
-
 
     );
 
