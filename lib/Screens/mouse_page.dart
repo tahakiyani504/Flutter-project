@@ -74,30 +74,18 @@ class _MousePageState extends State<MousePage>
       double dy,
       ) {
 
-
-    int moveX =
-    (dx * mouseSpeed).round();
-
-
-    int moveY =
-    (dy * mouseSpeed).round();
-
+    int moveX = (dx * mouseSpeed).round();
+    int moveY = (dy * mouseSpeed).round();
 
 
     if(moveX == 0 && moveY == 0){
-
       return;
-
     }
 
 
-
     SocketService.sendCommand(
-
-      '{"type":"MOUSE_MOVE","x":$moveX,"y":$moveY}',
-
+      '{"type":"MOUSE_MOVE","dx":$moveX,"dy":$moveY}',
     );
-
 
   }
 
