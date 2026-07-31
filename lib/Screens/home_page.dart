@@ -1,827 +1,554 @@
 import 'package:flutter/material.dart';
 import '../services/socket_service.dart';
 
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
-
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-
-
 class _HomePageState extends State<HomePage> {
-
-
   bool connected = false;
 
-
-
+  @override
   @override
   void initState() {
     super.initState();
-    checkConnection();
-  }
 
+    connected = SocketService.connectionStatus.value;
 
-
-  void checkConnection() {
-
-    setState(() {
-
-      connected = SocketService.isConnected;
-
+    SocketService.connectionStatus.addListener(() {
+      if (mounted) {
+        setState(() {
+          connected = SocketService.connectionStatus.value;
+        });
+      }
     });
-
   }
-
-
 
   void disconnectPC() {
-
     SocketService.disconnect();
 
-
     setState(() {
-
       connected = false;
-
     });
 
-
     ScaffoldMessenger.of(context).showSnackBar(
-
       const SnackBar(
-
-        content: Text(
-            "Disconnected from PC"
-        ),
-
+        content: Text("Disconnected from PC"),
       ),
-
     );
-
   }
 
-
-
-
   void connectPC() {
-
     Navigator.pushNamed(
       context,
       "/connect",
     );
-
   }
 
-
-
-
+  void openServerSetup() {
+    Navigator.pushNamed(
+      context,
+      "/server-setup",
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
-
       backgroundColor: const Color(0xff070B14),
-
-
       body: SafeArea(
-
         child: SingleChildScrollView(
-
+          physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.all(20),
-
-
           child: Column(
-
             crossAxisAlignment: CrossAxisAlignment.start,
-
-
             children: [
 
-
+              // ============================================================
+              // HEADER
+              // ============================================================
 
               const Text(
-
                 "PC Controller",
-
                 style: TextStyle(
-
                   color: Colors.white,
-
                   fontSize: 32,
-
                   fontWeight: FontWeight.bold,
-
                 ),
-
               ),
-
-
 
               const SizedBox(height: 6),
 
-
-
               Text(
-
                 "Control your PC wirelessly",
-
                 style: TextStyle(
-
                   color: Colors.grey.shade400,
-
                   fontSize: 16,
-
                 ),
-
               ),
-
-
 
               const SizedBox(height: 25),
 
-
-
+              // ============================================================
+              // CONNECTION CARD
+              // ============================================================
 
               Container(
-
                 width: double.infinity,
-
                 padding: const EdgeInsets.all(20),
-
-
                 decoration: BoxDecoration(
-
                   borderRadius: BorderRadius.circular(25),
-
-
                   gradient: LinearGradient(
-
                     colors: [
-
                       Colors.blue.withOpacity(0.35),
-
                       Colors.blue.withOpacity(0.08),
-
                     ],
-
                     begin: Alignment.topLeft,
-
                     end: Alignment.bottomRight,
-
                   ),
-
-
                   border: Border.all(
-
                     color: Colors.blue.withOpacity(0.3),
-
                   ),
-
-
                   boxShadow: [
-
                     BoxShadow(
-
                       color: Colors.blue.withOpacity(0.15),
-
                       blurRadius: 25,
-
                       spreadRadius: 2,
-
-                    )
-
+                    ),
                   ],
-
                 ),
-
-
-
-
                 child: Column(
-
                   crossAxisAlignment: CrossAxisAlignment.start,
-
-
                   children: [
 
-
-
                     Row(
-
                       children: [
-
-
                         Container(
-
                           height: 15,
-
                           width: 15,
-
-
                           decoration: BoxDecoration(
-
                             shape: BoxShape.circle,
-
-
                             color: connected
-
                                 ? Colors.greenAccent
-
                                 : Colors.redAccent,
-
+                            boxShadow: [
+                              BoxShadow(
+                                color: connected
+                                    ? Colors.greenAccent
+                                    .withOpacity(0.45)
+                                    : Colors.redAccent
+                                    .withOpacity(0.45),
+                                blurRadius: 10,
+                              ),
+                            ],
                           ),
-
                         ),
-
-
 
                         const SizedBox(width: 12),
 
-
-
-
                         Text(
-
                           connected
-
                               ? "Connected"
-
                               : "Disconnected",
-
-
                           style: const TextStyle(
-
                             color: Colors.white,
-
                             fontSize: 20,
-
                             fontWeight: FontWeight.bold,
-
                           ),
-
                         ),
-
-
                       ],
-
                     ),
-
-
 
                     const SizedBox(height: 15),
 
-
-
-
                     Text(
-
                       connected
-
                           ? "Your PC is ready to receive commands"
-
                           : "Connect your PC to start controlling",
-
-
                       style: TextStyle(
-
                         color: Colors.grey.shade300,
-
                         fontSize: 15,
-
                       ),
-
                     ),
-
-
 
                     const SizedBox(height: 20),
 
-
-
-
                     SizedBox(
-
                       width: double.infinity,
-
-
                       child: ElevatedButton.icon(
-
-
-
                         onPressed: connected
-
                             ? disconnectPC
-
                             : connectPC,
-
-
-
                         icon: Icon(
-
                           connected
-
                               ? Icons.power_settings_new
-
                               : Icons.computer,
-
                         ),
-
-
-
                         label: Text(
-
                           connected
-
                               ? "Disconnect"
-
                               : "Connect To PC",
-
                         ),
-
-
-
-
                         style: ElevatedButton.styleFrom(
-
-
-                          backgroundColor:
-
-                          connected
-
+                          backgroundColor: connected
                               ? Colors.redAccent
-
                               : Colors.blueAccent,
-
-
-
                           foregroundColor: Colors.white,
-
-
-
-                          padding:
-
-                          const EdgeInsets.symmetric(
-
-                              vertical: 14),
-
-
-
-                          shape: RoundedRectangleBorder(
-
-                            borderRadius:
-
-                            BorderRadius.circular(15),
-
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 14,
                           ),
-
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                            BorderRadius.circular(15),
+                          ),
                         ),
-
-
                       ),
-
-
-                    )
-
-
-
+                    ),
                   ],
-
                 ),
-
               ),
-
-
-
-
 
               const SizedBox(height: 30),
 
-
-
+              // ============================================================
+              // ABOUT
+              // ============================================================
 
               const Text(
-
                 "About",
-
                 style: TextStyle(
-
                   color: Colors.white,
-
                   fontSize: 22,
-
                   fontWeight: FontWeight.bold,
-
                 ),
-
               ),
-
-
-
 
               const SizedBox(height: 12),
 
-
-
-
               glassCard(
-
                 icon: Icons.computer,
-
                 title: "Wireless PC Control",
-
                 subtitle:
-
                 "Control your computer using WiFi connection with fast response.",
-
               ),
-
-
-
-
 
               const SizedBox(height: 20),
 
-
-
+              // ============================================================
+              // PC SERVER SETUP
+              // ============================================================
 
               const Text(
-
-                "Features",
-
+                "PC Server",
                 style: TextStyle(
-
                   color: Colors.white,
-
                   fontSize: 22,
-
                   fontWeight: FontWeight.bold,
-
                 ),
-
               ),
-
-
-
 
               const SizedBox(height: 12),
 
+              GestureDetector(
+                onTap: openServerSetup,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(22),
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.blueAccent.withOpacity(0.22),
+                        Colors.cyan.withOpacity(0.06),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    border: Border.all(
+                      color: Colors.blueAccent.withOpacity(0.30),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blueAccent.withOpacity(0.10),
+                        blurRadius: 22,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
 
+                      // ICON
+                      Container(
+                        height: 58,
+                        width: 58,
+                        decoration: BoxDecoration(
+                          borderRadius:
+                          BorderRadius.circular(17),
+                          color: Colors.blueAccent.withOpacity(0.15),
+                          border: Border.all(
+                            color:
+                            Colors.blueAccent.withOpacity(0.22),
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.install_desktop_rounded,
+                          color: Colors.blueAccent,
+                          size: 30,
+                        ),
+                      ),
 
+                      const SizedBox(width: 16),
+
+                      // TEXT
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment:
+                          CrossAxisAlignment.start,
+                          children: [
+
+                            const Text(
+                              "PC Server Setup",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+
+                            const SizedBox(height: 5),
+
+                            Text(
+                              "Download, install and learn how to "
+                                  "connect the Windows server.",
+                              style: TextStyle(
+                                color: Colors.grey.shade400,
+                                fontSize: 13,
+                                height: 1.35,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      // ARROW
+                      Container(
+                        height: 38,
+                        width: 38,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color:
+                          Colors.blueAccent.withOpacity(0.12),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          color: Colors.blueAccent,
+                          size: 17,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // ============================================================
+              // FEATURES
+              // ============================================================
+
+              const Text(
+                "Features",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 12),
 
               Row(
-
                 children: [
 
-
                   Expanded(
-
                     child: featureCard(
-
                       Icons.mouse,
-
                       "Mouse",
-
                     ),
-
                   ),
-
-
 
                   const SizedBox(width: 12),
 
-
-
                   Expanded(
-
                     child: featureCard(
-
                       Icons.keyboard,
-
                       "Keyboard",
-
                     ),
-
                   ),
-
-
-
                 ],
-
               ),
-
-
-
 
               const SizedBox(height: 15),
 
-
-
-
               Row(
-
                 children: [
 
-
                   Expanded(
-
                     child: featureCard(
-
                       Icons.volume_up,
-
                       "Media",
-
                     ),
-
                   ),
-
-
 
                   const SizedBox(width: 12),
 
-
-
-
                   Expanded(
-
                     child: featureCard(
-
                       Icons.power,
-
                       "Power",
-
                     ),
-
                   ),
-
-
                 ],
-
               ),
 
+              const SizedBox(height: 20),
 
+              // ============================================================
+              // SMALL INFO
+              // ============================================================
 
+              Center(
+                child: Text(
+                  "PC Controller • Local WiFi Control",
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.28),
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 10),
             ],
-
           ),
-
         ),
-
       ),
-
     );
-
   }
 
-
-
-
-
-
+  // ================================================================
+  // GLASS CARD
+  // ================================================================
 
   Widget glassCard({
-
     required IconData icon,
-
     required String title,
-
     required String subtitle,
-
   }) {
-
-
-
     return Container(
-
       padding: const EdgeInsets.all(18),
-
-
       decoration: BoxDecoration(
-
         color: Colors.white.withOpacity(0.06),
-
-
         borderRadius: BorderRadius.circular(20),
-
-
         border: Border.all(
-
           color: Colors.white.withOpacity(0.12),
-
         ),
-
       ),
-
-
-
       child: Row(
-
         children: [
 
-
-
           Container(
-
             padding: const EdgeInsets.all(14),
-
-
             decoration: BoxDecoration(
-
               color: Colors.blue.withOpacity(0.2),
-
-              borderRadius:
-
-              BorderRadius.circular(15),
-
+              borderRadius: BorderRadius.circular(15),
             ),
-
-
-
             child: Icon(
-
               icon,
-
               color: Colors.blueAccent,
-
               size: 30,
-
             ),
-
           ),
-
-
-
 
           const SizedBox(width: 15),
 
-
-
-
           Expanded(
-
             child: Column(
-
               crossAxisAlignment:
-
               CrossAxisAlignment.start,
-
-
               children: [
 
-
                 Text(
-
                   title,
-
                   style: const TextStyle(
-
                     color: Colors.white,
-
                     fontSize: 17,
-
                     fontWeight: FontWeight.bold,
-
                   ),
-
                 ),
-
-
-
 
                 const SizedBox(height: 5),
 
-
-
-
                 Text(
-
                   subtitle,
-
                   style: TextStyle(
-
                     color: Colors.grey.shade400,
-
                     fontSize: 14,
-
                   ),
-
                 ),
-
-
               ],
-
             ),
-
-          )
-
+          ),
         ],
-
       ),
-
     );
-
   }
 
-
-
-
-
-
+  // ================================================================
+  // FEATURE CARD
+  // ================================================================
 
   Widget featureCard(
-
       IconData icon,
-
       String title,
-
       ) {
-
-
     return Container(
-
       height: 120,
-
-
       decoration: BoxDecoration(
-
         color: Colors.white.withOpacity(0.05),
-
-
-        borderRadius:
-
-        BorderRadius.circular(20),
-
-
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-
           color: Colors.blue.withOpacity(0.15),
-
         ),
-
       ),
-
-
-
       child: Column(
-
         mainAxisAlignment:
-
         MainAxisAlignment.center,
-
-
         children: [
 
-
-
           Icon(
-
             icon,
-
             size: 35,
-
             color: Colors.blueAccent,
-
           ),
-
-
-
 
           const SizedBox(height: 10),
 
-
-
-
           Text(
-
             title,
-
             style: const TextStyle(
-
               color: Colors.white,
-
               fontSize: 16,
-
               fontWeight: FontWeight.w600,
-
             ),
-
           ),
-
-
-
         ],
-
       ),
-
     );
-
   }
-
-
 }
