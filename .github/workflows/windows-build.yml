@@ -1,0 +1,47 @@
+name: Build Windows Server EXE
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+
+    runs-on: windows-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'oracle'
+
+
+      - name: Build Server EXE
+        shell: cmd
+        run: |
+
+          cd PCControllerServer
+
+          mkdir build\classes
+
+          javac -d build\classes src\main\java\com\example\pccontroller\PCControllerServer.java
+
+          jar cfe build\PCControllerServer.jar com.example.pccontroller.PCControllerServer -C build\classes .
+
+          jpackage ^
+          --type exe ^
+          --name "PC Controller Server" ^
+          --input build ^
+          --main-jar PCControllerServer.jar
+
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: PC-Controller-Server-EXE
+          path: PCControllerServer\*.exe

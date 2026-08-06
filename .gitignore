@@ -43,3 +43,10 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+# PC Controller Server generated files
+PCControllerServer/build/
+PCControllerServer/release/
+PCControllerServer/*.app
+PCControllerServer/*.dmg
+PCControllerServer/**/*.dmg
+PCControllerServer/**/*.jar

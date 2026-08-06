@@ -12,175 +12,345 @@ class PowerPage extends StatefulWidget {
 class _PowerPageState extends State<PowerPage>
     with SingleTickerProviderStateMixin {
 
-  late AnimationController _controller;
+  late AnimationController _animationController;
 
-  String? activeCommand;
+  String? pressedCommand;
+
 
   @override
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
+    _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 150),
     );
   }
 
 
   @override
   void dispose() {
-    _controller.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
 
+
   void sendPowerCommand(String command) {
 
-    setState(() {
-      activeCommand = command;
-    });
 
-    SocketService.sendCommand(command);
+    if(command == "POWER_OFF") {
 
 
-    Future.delayed(
-      const Duration(milliseconds: 400),
-          () {
-        if (mounted) {
-          setState(() {
-            activeCommand = null;
-          });
-        }
-      },
-    );
+      showDialog(
+
+        context: context,
+
+        builder: (context) {
+
+
+          return AlertDialog(
+
+            backgroundColor: const Color(0xff111827),
+
+
+            shape: RoundedRectangleBorder(
+
+              borderRadius: BorderRadius.circular(25),
+
+            ),
+
+
+            title: const Row(
+
+              children: [
+
+                Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.redAccent,
+                  size: 32,
+                ),
+
+
+                SizedBox(width: 10),
+
+
+                Text(
+                  "Shutdown PC?",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+              ],
+
+            ),
+
+
+
+            content: const Text(
+
+              "Are you sure you want to shutdown your computer?",
+
+              style: TextStyle(
+                color: Colors.white70,
+              ),
+
+            ),
+
+
+
+            actions: [
+
+
+              TextButton(
+
+                onPressed: () {
+
+                  Navigator.pop(context);
+
+                },
+
+
+                child: const Text(
+                  "CANCEL",
+                  style: TextStyle(
+                    color: Colors.white70,
+                  ),
+                ),
+
+              ),
+
+
+
+              ElevatedButton(
+
+                style: ElevatedButton.styleFrom(
+
+                  backgroundColor: Colors.redAccent,
+
+                  shape: RoundedRectangleBorder(
+
+                    borderRadius: BorderRadius.circular(15),
+
+                  ),
+
+                ),
+
+
+
+                onPressed: () {
+
+
+                  Navigator.pop(context);
+
+
+                  SocketService.sendCommand(
+                    "POWER_OFF",
+                  );
+
+
+                },
+
+
+                child: const Text(
+                  "SHUTDOWN",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+
+              ),
+
+
+            ],
+
+          );
+
+        },
+
+      );
+
+
+    }
+
+    else {
+
+
+      SocketService.sendCommand(command);
+
+
+    }
+
+
   }
+
+
 
 
 
   @override
   Widget build(BuildContext context) {
 
-    final size = MediaQuery.of(context).size;
+
+    final width = MediaQuery.of(context).size.width;
 
 
     return Scaffold(
+
       backgroundColor: const Color(0xff050B18),
 
+
       body: SafeArea(
+
         child: SingleChildScrollView(
+
 
           child: Center(
 
+
             child: Padding(
+
               padding: const EdgeInsets.all(20),
 
+
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
 
                 children: [
+
 
 
                   const SizedBox(height: 25),
 
 
-                  // Heading
 
                   Row(
+
                     mainAxisAlignment: MainAxisAlignment.center,
 
                     children: const [
 
+
                       Icon(
+
                         Icons.power_settings_new,
+
                         color: Colors.blueAccent,
-                        size: 34,
+
+                        size: 36,
+
                       ),
+
+
 
                       SizedBox(width: 12),
 
 
+
                       Text(
+
                         "Power Controller",
+
                         style: TextStyle(
+
                           color: Colors.white,
+
                           fontSize: 28,
+
                           fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
+
                         ),
+
                       ),
+
+
                     ],
+
                   ),
 
 
-                  const SizedBox(height: 35),
+
+
+                  const SizedBox(height: 40),
 
 
 
-                  // Main Power Card
 
-                  _glassCard(
 
-                    width: size.width > 600
-                        ? 420
-                        : size.width * 0.9,
+                  glassCard(
 
-                    child: Column(
+                    width > 600 ? 430 : width * .9,
+
+
+                    Column(
 
                       children: [
 
+
+
                         const Icon(
+
                           Icons.power,
+
                           size: 90,
+
                           color: Colors.redAccent,
+
                         ),
+
+
 
 
                         const SizedBox(height: 15),
 
 
+
+
                         const Text(
+
                           "Shutdown PC",
+
                           style: TextStyle(
+
                             color: Colors.white,
-                            fontSize: 24,
+
+                            fontSize: 25,
+
                             fontWeight: FontWeight.bold,
+
                           ),
+
                         ),
 
 
-                        const SizedBox(height: 10),
-
-
-                        const Text(
-                          "Turn off your computer instantly",
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
-                        ),
 
 
                         const SizedBox(height: 25),
 
 
 
-                        _animatedButton(
 
-                          title: "POWER OFF",
+                        powerButton(
 
-                          icon: Icons.power_settings_new,
+                          "POWER OFF",
 
-                          color: Colors.redAccent,
+                          Icons.power_settings_new,
 
-                          command: "POWER_OFF",
+                          Colors.redAccent,
 
-                          height: 70,
-                        ),
+                          "POWER_OFF",
+
+                        )
+
 
 
                       ],
+
                     ),
+
                   ),
+
 
 
 
@@ -188,105 +358,80 @@ class _PowerPageState extends State<PowerPage>
 
 
 
-                  // Secondary actions
-
 
                   Row(
 
-                    mainAxisAlignment: MainAxisAlignment.center,
-
                     children: [
+
 
                       Expanded(
 
-                        child: _actionCard(
+                        child: smallButton(
 
-                          title: "Restart",
+                          "Restart",
 
-                          icon: Icons.restart_alt,
+                          Icons.restart_alt,
 
-                          color: Colors.orangeAccent,
+                          Colors.orangeAccent,
 
-                          command: "RESTART",
+                          "RESTART",
 
                         ),
+
                       ),
+
 
 
                       const SizedBox(width: 15),
 
 
+
                       Expanded(
 
-                        child: _actionCard(
+                        child: smallButton(
 
-                          title: "Sleep",
+                          "Sleep",
 
-                          icon: Icons.bedtime,
+                          Icons.bedtime,
 
-                          color: Colors.blueAccent,
+                          Colors.blueAccent,
 
-                          command: "SLEEP",
+                          "SLEEP",
 
                         ),
+
                       ),
 
 
                     ],
+
                   ),
 
-
-
-                  const SizedBox(height: 35),
-
-
-                  Container(
-
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 12,
-                    ),
-
-                    decoration: BoxDecoration(
-
-                      color: Colors.white.withOpacity(0.05),
-
-                      borderRadius: BorderRadius.circular(20),
-
-                    ),
-
-
-                    child: const Text(
-
-                      "⚠ Power actions will affect your PC",
-
-                      style: TextStyle(
-                        color: Colors.white54,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
 
 
                 ],
+
               ),
+
             ),
+
+
           ),
+
         ),
+
       ),
+
     );
+
   }
 
 
 
 
-  Widget _glassCard({
 
-    required Widget child,
 
-    required double width,
-
-  }) {
+  Widget glassCard(double width, Widget child){
 
 
     return ClipRRect(
@@ -302,6 +447,7 @@ class _PowerPageState extends State<PowerPage>
         ),
 
 
+
         child: Container(
 
           width: width,
@@ -311,301 +457,264 @@ class _PowerPageState extends State<PowerPage>
 
           decoration: BoxDecoration(
 
-            color: Colors.white.withOpacity(0.08),
+            color: Colors.white.withOpacity(.08),
+
 
             borderRadius: BorderRadius.circular(30),
 
 
             border: Border.all(
 
-              color: Colors.white.withOpacity(0.15),
+              color: Colors.white.withOpacity(.15),
 
             ),
-
-
-            boxShadow: [
-
-              BoxShadow(
-
-                color: Colors.blue.withOpacity(0.15),
-
-                blurRadius: 25,
-
-                spreadRadius: 3,
-
-              )
-
-            ],
 
           ),
 
 
           child: child,
+
         ),
+
       ),
+
     );
+
+
   }
 
 
 
 
-  Widget _actionCard({
 
-    required String title,
 
-    required IconData icon,
 
-    required Color color,
+  Widget powerButton(
 
-    required String command,
+      String title,
 
-  }) {
+      IconData icon,
+
+      Color color,
+
+      String command,
+
+      ){
+
 
 
     return GestureDetector(
 
-      onTapDown: (_) {
 
-        _controller.forward();
-
-      },
-
-
-      onTapUp: (_) {
-
-        _controller.reverse();
+      onTap: (){
 
         sendPowerCommand(command);
 
       },
 
 
-      onTapCancel: () {
 
-        _controller.reverse();
+      child: AnimatedContainer(
+
+        duration: const Duration(milliseconds: 200),
+
+
+        height: 70,
+
+
+        decoration: BoxDecoration(
+
+          gradient: LinearGradient(
+
+            colors: [
+
+              color,
+
+              color.withOpacity(.6),
+
+            ],
+
+          ),
+
+
+          borderRadius: BorderRadius.circular(22),
+
+
+          boxShadow: [
+
+            BoxShadow(
+
+              color: color.withOpacity(.4),
+
+              blurRadius: 20,
+
+            )
+
+          ],
+
+        ),
+
+
+
+        child: Row(
+
+          mainAxisAlignment: MainAxisAlignment.center,
+
+          children: [
+
+
+            Icon(
+
+              icon,
+
+              color: Colors.white,
+
+              size: 32,
+
+            ),
+
+
+            const SizedBox(width: 12),
+
+
+
+            Text(
+
+              title,
+
+              style: const TextStyle(
+
+                color: Colors.white,
+
+                fontSize: 20,
+
+                fontWeight: FontWeight.bold,
+
+              ),
+
+            ),
+
+
+          ],
+
+        ),
+
+      ),
+
+    );
+
+  }
+
+
+
+
+
+
+
+  Widget smallButton(
+
+      String title,
+
+      IconData icon,
+
+      Color color,
+
+      String command,
+
+      ){
+
+
+
+    return GestureDetector(
+
+
+      onTap: (){
+
+
+        sendPowerCommand(command);
+
 
       },
 
 
-      child: AnimatedScale(
 
-        scale: activeCommand == command ? 0.94 : 1,
+      child: Container(
 
-        duration: const Duration(milliseconds: 150),
+        height: 150,
 
 
-        child: ClipRRect(
+        decoration: BoxDecoration(
+
+
+          color: Colors.white.withOpacity(.07),
+
 
           borderRadius: BorderRadius.circular(25),
 
 
-          child: BackdropFilter(
 
-            filter: ImageFilter.blur(
-              sigmaX: 12,
-              sigmaY: 12,
-            ),
+          border: Border.all(
 
+            color: color.withOpacity(.5),
 
-            child: Container(
-
-              height: 150,
-
-
-              decoration: BoxDecoration(
-
-                color: Colors.white.withOpacity(0.07),
-
-
-                borderRadius: BorderRadius.circular(25),
-
-
-                border: Border.all(
-
-                  color: color.withOpacity(0.4),
-
-                ),
-
-              ),
-
-
-              child: Column(
-
-                mainAxisAlignment: MainAxisAlignment.center,
-
-
-                children: [
-
-                  Icon(
-                    icon,
-                    size: 45,
-                    color: color,
-                  ),
-
-
-                  const SizedBox(height: 15),
-
-
-                  Text(
-
-                    title,
-
-                    style: const TextStyle(
-
-                      color: Colors.white,
-
-                      fontSize: 17,
-
-                      fontWeight: FontWeight.bold,
-
-                    ),
-                  ),
-
-
-                ],
-              ),
-            ),
           ),
+
+
         ),
-      ),
-    );
-  }
 
 
 
+        child: Column(
+
+          mainAxisAlignment: MainAxisAlignment.center,
+
+          children: [
 
 
-  Widget _animatedButton({
+            Icon(
 
-    required String title,
+              icon,
 
-    required IconData icon,
+              size: 45,
 
-    required Color color,
-
-    required String command,
-
-    required double height,
-
-  }) {
-
-
-    return GestureDetector(
-
-      onTapDown: (_) {
-
-        _controller.forward();
-
-      },
-
-
-      onTapUp: (_) {
-
-        _controller.reverse();
-
-        sendPowerCommand(command);
-
-      },
-
-
-      onTapCancel: () {
-
-        _controller.reverse();
-
-      },
-
-
-      child: AnimatedScale(
-
-        scale: activeCommand == command ? 0.94 : 1,
-
-        duration: const Duration(milliseconds: 150),
-
-
-        child: Container(
-
-          height: height,
-
-
-          decoration: BoxDecoration(
-
-            gradient: LinearGradient(
-
-              colors: [
-
-                color,
-
-                color.withOpacity(0.65),
-
-              ],
+              color: color,
 
             ),
 
 
-            borderRadius: BorderRadius.circular(22),
+
+            const SizedBox(height: 15),
 
 
-            boxShadow: [
 
-              BoxShadow(
+            Text(
 
-                color: color.withOpacity(0.5),
+              title,
 
-                blurRadius: 20,
-
-                spreadRadius: 2,
-
-              )
-
-            ],
-
-          ),
-
-
-          child: Row(
-
-            mainAxisAlignment: MainAxisAlignment.center,
-
-
-            children: [
-
-
-              Icon(
-
-                icon,
+              style: const TextStyle(
 
                 color: Colors.white,
 
-                size: 30,
+                fontSize: 18,
+
+                fontWeight: FontWeight.bold,
 
               ),
 
+            ),
 
-              const SizedBox(width: 12),
 
+          ],
 
-              Text(
-
-                title,
-
-                style: const TextStyle(
-
-                  color: Colors.white,
-
-                  fontSize: 20,
-
-                  fontWeight: FontWeight.bold,
-
-                  letterSpacing: 1,
-
-                ),
-              ),
-
-            ],
-          ),
         ),
+
+
       ),
+
     );
+
+
   }
+
 
 }
